@@ -25,6 +25,14 @@ class MyServer < Sinatra::Base
     get '/hello' do
         json lol: "bye"
     end
+
+    post '/login' do
+        if params.has_key?(:name) && params.has_key?(:pass) then
+            json text: "Success!"
+        else
+            json text: "Bad request!"
+        end
+    end
 end
 
 Rack::Handler::WEBrick.run MyServer, webrick_options
