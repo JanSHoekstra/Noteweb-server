@@ -18,6 +18,8 @@ webrick_options = {
 }
 
 class MyServer < Sinatra::Base
+    #set :environment, :production
+
     get '/' do
         json text: "Hellow, world!"
     end
@@ -27,7 +29,7 @@ class MyServer < Sinatra::Base
     end
 
     post '/login' do
-        if params.has_key?(:name) && params.has_key?(:pass) then
+        if params.has_key(:name) && params.has_key?(:pass) then
             json text: "Success!"
         else
             json text: "Bad request!"
