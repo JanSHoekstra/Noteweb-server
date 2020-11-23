@@ -6,8 +6,8 @@ require 'sinatra/json'
 require 'webrick'
 require 'webrick/https'
 require 'openssl'
-require 'json'
-require 'rufus-scheduler'
+
+load 'classes/users.rb'
 
 webrick_options = {
   Port: 2048,
@@ -19,25 +19,11 @@ webrick_options = {
   SSLPrivateKey: OpenSSL::PKey::RSA.new(File.open('alt.key').read),
   SSLCertName: [['CN', WEBrick::Utils.getservername]]
 }
-
-$users_path = 'db/users.json'
-$users = JSON.parse(File.open($users_path).read)
-
-def write_users_to_file
-  unless $users.empty?
-    File.write($users_path, JSON.pretty_generate($users))
-    puts 'Writing $users to file.'
-  end
-end
-
-scheduler = Rufus::Scheduler.new
-scheduler.every '10s' do
-  write_users_to_file
-end
-
 # The server
 class MyServer < Sinatra::Base
   # set :environment, :production
+  users = Users.new
+  users.write_every('3s')
 
   get '/' do
     json text: 'Hellow, world!'
@@ -50,10 +36,10 @@ class MyServer < Sinatra::Base
   post '/login' do
     if params.key?(:name) && params.key?(:pass)
       # Save name and pass to $users variable
-      if $users.key?(params[:name])
+      if users.exists?(params[:name])
         json text: 'Username already exists!'
       else
-        $users[params[:name]] = [params[:pass], 'salt']
+        users.add(params[:name], params[:pass])
         # debug
         puts 'Adding user to $users'
         json text: 'Success!'
