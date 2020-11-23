@@ -24,8 +24,10 @@ $users_path = 'db/users.json'
 $users = JSON.parse(File.open($users_path).read)
 
 def write_users_to_file
-  File.write($users_path, JSON.pretty_generate($users))
-  puts 'Writing $users to file.'
+  unless $users.empty?
+    File.write($users_path, JSON.pretty_generate($users))
+    puts 'Writing $users to file.'
+  end
 end
 
 scheduler = Rufus::Scheduler.new
