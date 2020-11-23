@@ -33,19 +33,19 @@ class MyServer < Sinatra::Base
     json lol: 'bye'
   end
 
-  post '/login' do
-    if params.key?(:name) && params.key?(:pass)
-      # Save name and pass to $users variable
-      if users.exists?(params[:name])
-        json text: 'Username already exists!'
-      else
-        users.add(params[:name], params[:pass])
-        # debug
-        puts 'Adding user to $users'
-        json text: 'Success!'
-      end
+  post '/register' do
+    if params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass])
+      json text: 'Success!'
     else
       json text: 'Bad request!'
+    end
+  end
+
+  post '/login' do
+    if params.key?(:name) && params.key?(:pass) && users.login(params[:name], params[:pass])
+      json text: 'Succesful login!'
+    else
+      json text: 'Login denied!'
     end
   end
 end
