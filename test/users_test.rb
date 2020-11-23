@@ -6,9 +6,11 @@ require 'test/unit'
 load '../classes/users.rb'
 
 class UsersTest < Test::Unit::TestCase
-  def test_add
+  def test_register_login
     u = Users.new
     u.add('testuser', 'testpassword')
-    assert_equal(1, 1)
+    assert_equal(true, u.login('testuser', 'testpassword'))
+    assert_equal(false, u.login('faketestuser', 'testpassword'))
+    assert_equal(false, u.login('testuser', 'faketestpassword'))
   end
 end
