@@ -25,14 +25,6 @@ class MyServer < Sinatra::Base
   users = Users.new
   users.write_every('3s')
 
-  get '/' do
-    json text: 'Hellow, world!'
-  end
-
-  get '/hello' do
-    json lol: 'bye'
-  end
-
   post '/register' do
     if params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass])
       json text: 'Success!'
