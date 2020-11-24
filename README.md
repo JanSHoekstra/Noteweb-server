@@ -6,6 +6,7 @@ Built in Ruby, use `ruby main.rb` to launch it.
 Install with `gem install <package>`.
 - `sinatra`
 - `sinatra-json`
+- `sinatra-contrib`
 - `openssl`
 - `webrick`
 - `bcrypt`
