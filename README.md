@@ -9,3 +9,4 @@ Install with `gem install <package>`.
 - `webrick`
 - `bcrypt`
 - `rufus-scheduler`
+- `httparty`
