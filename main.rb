@@ -8,6 +8,7 @@ require 'webrick/https'
 require 'openssl'
 
 load 'classes/users.rb'
+load 'classes/books.rb'
 
 webrick_options = {
   Port: 2048,
@@ -25,6 +26,8 @@ class MyServer < Sinatra::Base
   users = Users.new
   users.write_every('3s')
 
+  books = Books.new
+
   post '/register' do
     if params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass])
       json text: 'Success!'
@@ -39,6 +42,14 @@ class MyServer < Sinatra::Base
     else
       json text: 'Login denied!'
     end
+  end
+  
+  post '/books/get' do
+    books.get_book(params[:book]) if params.key?(:book)
+  end
+
+  post '/books/get/amazon_link' do
+    books.get_amazon_link_from_book(params[:book]) if params.key?(:book)
   end
 end
 

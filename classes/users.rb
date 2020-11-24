@@ -3,6 +3,7 @@
 require 'json'
 require 'rufus-scheduler'
 require 'bcrypt'
+
 # User class
 class Users
   def initialize
