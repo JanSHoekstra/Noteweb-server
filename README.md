@@ -12,3 +12,6 @@ Install with `gem install <package>`.
 - `bcrypt`
 - `rufus-scheduler`
 - `httparty`
+
+When on Windows:
+- `tzinfo-data`

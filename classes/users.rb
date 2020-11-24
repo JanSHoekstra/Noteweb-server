@@ -10,6 +10,8 @@ class Users
     # Here we are initialising the variables.
     @users_path = 'db/users.json'
     @users = JSON.parse(File.open(@users_path).read)
+    # For Windows, because Windows doesn't include timezones for whatever reason.
+    ENV['TZ'] = 'Europe/Amsterdam'
     @scheduler = Rufus::Scheduler.new
     @changed_since_last_write = false
   end
