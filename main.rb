@@ -42,9 +42,14 @@ class MyServer < Sinatra::Base
     end
   end
 
-  post '/book' do
+  get '/book/:book' do
     b = Book.new(params[:book]) if params.key?(:book)
-    b.print_details
+    json b.to_hash
+  end
+
+  get '/book/:book/:param' do
+    b = Book.new(params[:book]) if params.key?(:book)
+    b.instance_variable_get(params[:param])
   end
 end
 
