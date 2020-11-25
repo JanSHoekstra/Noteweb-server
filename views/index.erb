@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>MyRead - Home</title>
+	</head>
+	<body>
+		<h1>MyRead - Home</h1>
+		<p>You have arrived, <%= session[:id] %>.</p>
+		<h2>Login</h2>
+		<form method="post" action="/login">
+			<label for="name">Name:</label>
+			<input id="name" name="name" type="text"></input>
+			<label for="pass">Password:</label>
+			<input id="pass" name="pass" type="text"></input>
+			<input type="submit" value="Login"></input>
+		</form>
+		<h2>Register</h2>
+		<form method="post" action="/register">
+			<label for="name">Name:</label>
+			<input id="name" name="name" type="text"></input>
+			<label for="pass">Password:</label>
+			<input id="pass" name="pass" type="text"></input>
+			<input type="submit" value="Register"></input>
+		</form>
+		<form method="get" action="/signout">
+			<input type="submit" value="Sign out"></input>
+		</form>
+	</body>
+</html>

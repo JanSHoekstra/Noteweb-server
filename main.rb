@@ -21,25 +21,34 @@ webrick_options = {
   SSLCertName: [['CN', WEBrick::Utils.getservername]]
 }
 # The server
-class MyServer < Sinatra::Base
+class MyReadServer < Sinatra::Base
   # set :environment, :production
+  enable :sessions
   users = Users.new
   users.write_every('3s')
 
+  get '/' do
+    erb :index
+  end
+
   post '/register' do
     if params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass])
-      json text: 'Success!'
+      'Success!'
     else
-      json text: 'Bad request!'
+      'Bad request!'
     end
   end
 
   post '/login' do
     if params.key?(:name) && params.key?(:pass) && users.login(params[:name], params[:pass])
-      json text: 'Succesful login!'
+      session[:id] = params[:name]
     else
-      json text: 'Login denied!'
+      'Login denied!'
     end
+  end
+
+  get '/signout' do
+    session.delete(:id)
   end
 
   get '/book/:book' do
@@ -53,5 +62,5 @@ class MyServer < Sinatra::Base
   end
 end
 
-Rack::Handler::WEBrick.run MyServer, webrick_options
+Rack::Handler::WEBrick.run MyReadServer, webrick_options
 # vim: tabstop=2 shiftwidth=2 expandtab
