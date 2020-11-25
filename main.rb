@@ -49,7 +49,7 @@ class MyServer < Sinatra::Base
 
   get '/book/:book/:param' do
     b = Book.new(params[:book]) if params.key?(:book)
-    b.instance_variable_get(params[:param])
+    b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
   end
 end
 
