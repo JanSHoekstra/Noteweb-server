@@ -4,61 +4,45 @@ require 'httparty'
 
 # Book object containing information about books
 class Book
+  def value_of(array, value)
+    array.nil? || array[value].nil? ? '' : array[value]
+  end
+
   def initialize(ol_id)
     # Raw data
-    uri = URI('https://openlibrary.org/works/' + ol_id + '.json')
-    response = HTTParty.get(uri)
-    @work_data = JSON.parse(response.to_s)
+    uri = URI("https://openlibrary.org/works/#{ol_id}.json")
+    @work_data = JSON.parse(HTTParty.get(uri).to_s)
 
-    uri = URI('https://openlibrary.org/books/' + ol_id + '.json')
-    response = HTTParty.get(uri)
-    @book_data = JSON.parse(response.to_s)
+    uri = URI("https://openlibrary.org/books/#{ol_id}.json")
+    @book_data = JSON.parse(HTTParty.get(uri).to_s)
 
     # OpenLibrary ID
     @id = ol_id
 
-    # Title
-    @title = @work_data['title'] unless @work_data['title'].nil?
+    @title = value_of(@work_data, 'title')
+    @description = value_of(@work_data['description'], 'value')
+    @subjects = value_of(@book_data, 'subjects')
+    @publish_date = value_of(@work_data, 'publish_date')
 
     # Author
-    if @work_data['authors'].nil?
-      @author = @work_data['by_statement'] unless @work_data['by_statement'].nil?
-      @author = @book_data['contributions'][0].gsub(/\(.*\)/, '') if @author.nil? && !@book_data['contributions'].nil?
-    else
-      uri = URI('https://openlibrary.org' + @work_data['authors'][0]['author']['key'].to_s + '.json')
-      response = HTTParty.get(uri)
-      @author_data = JSON.parse(response.to_s)
-      @author = @author_data['name']
+    if @work_data['authors']
+      uri = URI("https://openlibrary.org#{@work_data['authors'][0]['key']}.json")
+      @author_data = JSON.parse(HTTParty.get(uri).to_s)
+      @author = value_of(@author_data, 'name')
       # remove /authors/ from /authors/<author_id>
-      @author_id = @work_data['authors'][0]['author']['key'].delete('/authors/')
+      @author_id = @work_data['authors'][0]['key'].delete('/authors/')
+    else
+      @author = value_of(@work_data, 'by_statement')
     end
 
-    # Description
-    @description = @work_data['description']['value'] unless @work_data['description'].nil?
-
-    # Subjects
-    @subjects = @book_data['subjects'] unless @book_data['subjects'].nil?
-
-    # Publish Date
-    @publish_date = @work_data['publish_date'] unless @work_data['publish_date'].nil?
-
     # Amazon link
-    unless @work_data['identifiers'].nil? || @work_data['identifiers']['amazon'].nil?
-      @amazon_id = @work_data['identifiers']['amazon'].to_s
-      amazon_id.delete! '["]'
-      @amazon_link = 'https://www.amazon.com/dp/' + amazon_id
+    if @work_data['identifiers'] && @work_data['identifiers']['amazon']
+      @amazon_id = @work_data['identifiers']['amazon'].to_s.delete '["]'
+      @amazon_link = "https://www.amazon.com/dp/#{amazon_id}"
     end
   end
 
-  attr_reader :id
-  attr_reader :title
-  attr_reader :author_id
-  attr_reader :author
-  attr_reader :description
-  attr_reader :subjects
-  attr_reader :publish_date
-  attr_reader :amazon_id
-  attr_reader :amazon_link
+  attr_reader :id, :title, :author_id, :author, :description, :subjects, :publish_date, :amazon_id, :amazon_link
 
   def print_details
     puts "Id: #{@id}"
