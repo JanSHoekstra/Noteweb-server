@@ -47,7 +47,7 @@ class MyReadServer < Sinatra::Base
       session[:id] = params[:name]
       redirect '/'
     else
-      halt 401, 'Access denied. Have you entered a correct username and password?<br><img src="http.cat/401">'
+      halt 401, 'Access denied. Have you entered a correct username and password?<br><img src="https://http.cat/401">'
     end
   end
 
@@ -60,7 +60,7 @@ class MyReadServer < Sinatra::Base
       books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
       json books[params[:book]].to_hash
     else
-      halt 401, 'Access denied.<br><img src="http.cat/401">'
+      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
     end
   end
 
@@ -70,7 +70,7 @@ class MyReadServer < Sinatra::Base
       b = books[params[:book]]
       b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
     else
-      halt 401, 'Access denied.<br><img src="http.cat/401">'
+      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
     end
   end
 end
