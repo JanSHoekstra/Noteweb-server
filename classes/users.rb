@@ -20,6 +20,11 @@ class Users
   def write_users_to_file
     return unless @changed_since_last_write
 
+    unless File.exist?(@users_path)
+      File.create(@users_path)
+      File.write(@users_path, '{}')
+    end
+
     File.write(@users_path, JSON.pretty_generate(@users))
     puts "Time: #{Time.now} - Writing $users to file."
     @changed_since_last_write = false
