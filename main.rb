@@ -53,6 +53,7 @@ class MyReadServer < Sinatra::Base
 
   get '/signout' do
     session.delete(:id)
+    redirect '/'
   end
 
   get '/book/:book' do

@@ -12,6 +12,12 @@ class Book
     JSON.parse(HTTParty.get(URI(uri)).to_s)
   end
 
+
+  def get_wiki(search)
+    result = uri_to_json('https://en.wikipedia.org/w/api.php?action=opensearch&search=' + search)
+    value_of(value_of(result, 3), 0)
+  end
+
   def initialize(openlibrary_id)
     # Raw data
     work_data = uri_to_json("https://openlibrary.org/works/#{openlibrary_id}.json")
@@ -37,9 +43,12 @@ class Book
     else
       @author = value_of(work_data, 'by_statement')
     end
+
+    @author_wiki = get_wiki(@author)
+    @book_wiki = get_wiki(@title)
   end
 
-  attr_reader :id, :title, :author_id, :author, :description, :subjects, :publish_date, :amazon_id, :amazon_link
+  attr_reader :id, :title, :author_id, :author, :description, :subjects, :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki
 
   def print_details
     puts "Id: #{@id}"
