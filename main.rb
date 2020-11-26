@@ -38,7 +38,7 @@ class MyReadServer < Sinatra::Base
     if params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass])
       'Success!'
     else
-      halt 400, 'Bad request. Make sure the password contains at least 9 characters (max 64), 1 upper- and lowercase letter, a digit and doesn\'t include the username.'
+      halt 400, 'Bad request. Make sure the password contains at least 9 characters (max 64), 1 upper- and lowercase letter, a digit and doesn\'t include the username.<br><img src="https://http.cat/400">'
     end
   end
 
@@ -47,7 +47,7 @@ class MyReadServer < Sinatra::Base
       session[:id] = params[:name]
       redirect '/'
     else
-      halt 401, 'Access denied. Have you entered a correct username and password?'
+      halt 401, 'Access denied. Have you entered a correct username and password?<br><img src="http.cat/401">'
     end
   end
 
@@ -60,7 +60,7 @@ class MyReadServer < Sinatra::Base
       books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
       json books[params[:book]].to_hash
     else
-      halt 401, 'Access denied.'
+      halt 401, 'Access denied.<br><img src="http.cat/401">'
     end
   end
 
@@ -70,7 +70,7 @@ class MyReadServer < Sinatra::Base
       b = books[params[:book]]
       b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
     else
-      halt 401, 'Access denied.'
+      halt 401, 'Access denied.<br><img src="http.cat/401">'
     end
   end
 end
