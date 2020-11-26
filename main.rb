@@ -27,6 +27,7 @@ class MyReadServer < Sinatra::Base
   users = Users.new
   users.write_every('3s')
 
+  # Books cache - store books in RAM when they have already been fetched
   books = {}
 
   get '/' do

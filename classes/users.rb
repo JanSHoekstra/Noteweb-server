@@ -52,13 +52,11 @@ class Users
     return false if exists?(name) || !meets_requirements?(name, pass)
 
     encrypted_pass = BCrypt::Password.create(pass)
-    @users[name] = [encrypted_pass, encrypted_pass.salt]
+    @users[name] = [encrypted_pass]
     @changed_since_last_write = true
   end
 
   def login(name, pass)
-    if exists?(name)
-      return BCrypt::Password.new(@users[name][0]) == pass
-    end
+    return BCrypt::Password.new(@users[name][0]) == pass if exists?(name)
   end
 end

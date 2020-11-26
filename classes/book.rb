@@ -7,7 +7,7 @@ class Book
   def value_of(array, value)
     array.nil? || array[value].nil? ? '' : array[value]
   end
-  
+
   def uri_to_json(uri)
     JSON.parse(HTTParty.get(URI(uri)).to_s)
   end
