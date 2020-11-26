@@ -9,7 +9,10 @@ class Book
   end
 
   def uri_to_json(uri)
-    JSON.parse(HTTParty.get(URI(uri)).to_s)
+    JSON.parse(HTTParty.get(URI(uri)).to_s) ? JSON.parse(HTTParty.get(URI(uri)).to_s) : ''
+  rescue JSON::ParserError => e
+    puts e
+    ''
   end
 
 
