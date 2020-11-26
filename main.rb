@@ -35,15 +35,16 @@ class MyReadServer < Sinatra::Base
     if params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass])
       'Success!'
     else
-      'Bad request!'
+      halt 400, 'Bad request.'
     end
   end
 
   post '/login' do
     if params.key?(:name) && params.key?(:pass) && users.login(params[:name], params[:pass])
       session[:id] = params[:name]
+      redirect '/'
     else
-      'Login denied!'
+      halt 401, 'Access denied. Have you entered a correct username and password?'
     end
   end
 
@@ -52,13 +53,21 @@ class MyReadServer < Sinatra::Base
   end
 
   get '/book/:book' do
-    b = Book.new(params[:book]) if params.key?(:book)
-    json b.to_hash
+    if session[:id]
+      b = Book.new(params[:book]) if params.key?(:book)
+      json b.to_hash
+    else
+      halt 401, 'Access denied.'
+    end
   end
 
   get '/book/:book/:param' do
-    b = Book.new(params[:book]) if params.key?(:book)
-    b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
+    if session[:id]
+      b = Book.new(params[:book]) if params.key?(:book)
+      b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
+    else
+      halt 401, 'Access denied.'
+    end
   end
 end
 
