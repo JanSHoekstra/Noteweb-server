@@ -9,6 +9,8 @@ class Users
   def initialize
     # Here we are initialising the variables.
     @users_path = 'db/users.json'
+    # Create empty json file if there is none
+    File.new(@users_path, 'w').puts('{}') unless File.exist?(@users_path)
     @users = JSON.parse(File.open(@users_path).read)
     # For Windows, because Windows doesn't include timezones for whatever reason.
     ENV['TZ'] = 'Europe/Amsterdam'
@@ -19,11 +21,6 @@ class Users
   # Writes the users in memory to disk
   def write_users_to_file
     return unless @changed_since_last_write
-
-    unless File.exist?(@users_path)
-      File.create(@users_path)
-      File.write(@users_path, '{}')
-    end
 
     File.write(@users_path, JSON.pretty_generate(@users))
     puts "Time: #{Time.now} - Writing $users to file."
