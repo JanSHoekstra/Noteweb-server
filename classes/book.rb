@@ -8,27 +8,23 @@ class Book
     array.nil? || array[value].nil? ? '' : array[value]
   end
 
-  def value_of_two(array, value, value2)
-    array.nil? || array[value].nil? || array[value][value2].nil? ? '' : array[value][value2]
-  end
-
-  def initialize(ol_id)
+  def initialize(openlibrary_id)
     # Raw data
-    uri = URI("https://openlibrary.org/works/#{ol_id}.json")
+    uri = URI("https://openlibrary.org/works/#{openlibrary_id}.json")
     work_data = JSON.parse(HTTParty.get(uri).to_s)
 
-    uri = URI("https://openlibrary.org/books/#{ol_id}.json")
+    uri = URI("https://openlibrary.org/books/#{openlibrary_id}.json")
     book_data = JSON.parse(HTTParty.get(uri).to_s)
 
-    # OpenLibrary ID
-    @id = ol_id
-
+    @id = openlibrary_id
     @title = value_of(work_data, 'title')
     @description = value_of(work_data['description'], 'value')
     @subjects = value_of(book_data, 'subjects')
     @publish_date = value_of(work_data, 'publish_date')
+    @amazon_id = value_of(value_of(work_data, 'identifiers'), 'amazon').to_s.delete '["]'
+    @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{amazon_id}"
 
-    # Author
+    # Getting author depends on the way it's stored in openlibrary
     if work_data['authors']
       begin
         uri = URI("https://openlibrary.org#{work_data['authors'][0]['key']}.json")
@@ -42,14 +38,6 @@ class Book
       @author_id = author_data['key'].delete('/authors/')
     else
       @author = value_of(work_data, 'by_statement')
-    end
-
-    # Amazon link
-    @amazon_id = value_of(value_of(work_data, 'identifiers'), 'amazon').to_s.delete '["]'
-    if @amazon_id != ''
-      @amazon_link = "https://www.amazon.com/dp/#{amazon_id}"
-    else
-      @amazon_link = ''
     end
   end
 
