@@ -7,15 +7,15 @@ class Book
   def value_of(array, value)
     array.nil? || array[value].nil? ? '' : array[value]
   end
+  
+  def uri_to_json(uri)
+    JSON.parse(HTTParty.get(URI(uri)).to_s)
+  end
 
   def initialize(openlibrary_id)
     # Raw data
-    uri = URI("https://openlibrary.org/works/#{openlibrary_id}.json")
-    work_data = JSON.parse(HTTParty.get(uri).to_s)
-
-    uri = URI("https://openlibrary.org/books/#{openlibrary_id}.json")
-    book_data = JSON.parse(HTTParty.get(uri).to_s)
-
+    work_data = uri_to_json("https://openlibrary.org/works/#{openlibrary_id}.json")
+    book_data = uri_to_json("https://openlibrary.org/books/#{openlibrary_id}.json")
     @id = openlibrary_id
     @title = value_of(work_data, 'title')
     @description = value_of(work_data['description'], 'value')
@@ -27,11 +27,9 @@ class Book
     # Getting author depends on the way it's stored in openlibrary
     if work_data['authors']
       begin
-        uri = URI("https://openlibrary.org#{work_data['authors'][0]['key']}.json")
-        author_data = JSON.parse(HTTParty.get(uri).to_s)
+        author_data = uri_to_json("https://openlibrary.org#{work_data['authors'][0]['key']}.json")
       rescue
-        uri = URI("https://openlibrary.org#{work_data['authors'][0]['author']['key']}.json")
-        author_data = JSON.parse(HTTParty.get(uri).to_s)
+        author_data = uri_to_json("https://openlibrary.org#{work_data['authors'][0]['author']['key']}.json")
       end
       @author = value_of(author_data, 'name')
       # remove /authors/ from /authors/<author_id>
