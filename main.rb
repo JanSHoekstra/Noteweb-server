@@ -27,6 +27,8 @@ class MyReadServer < Sinatra::Base
   users = Users.new
   users.write_every('3s')
 
+  books = {}
+
   get '/' do
     erb :index
   end
@@ -54,8 +56,8 @@ class MyReadServer < Sinatra::Base
 
   get '/book/:book' do
     if session[:id]
-      b = Book.new(params[:book]) if params.key?(:book)
-      json b.to_hash
+      books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
+      json books[params[:book]].to_hash
     else
       halt 401, 'Access denied.'
     end
@@ -63,7 +65,8 @@ class MyReadServer < Sinatra::Base
 
   get '/book/:book/:param' do
     if session[:id]
-      b = Book.new(params[:book]) if params.key?(:book)
+      books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
+      b = books[params[:book]]
       b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
     else
       halt 401, 'Access denied.'
