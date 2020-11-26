@@ -12,16 +12,23 @@
 			<label for="name">Name:</label>
 			<input id="name" name="name" type="text"></input>
 			<label for="pass">Password:</label>
-			<input id="pass" name="pass" type="text"></input>
+			<input id="pass" name="pass" type="password"></input>
 			<input type="submit" value="Login"></input>
 		</form>
 
 		<h2>Register</h2>
+		<ul>
+			<li>Minimum 9 characters, maximum 64</li>
+			<li>Minimum 1 English uppercase + lowercase letter</li>
+			<li>Minimum 1 digit</li>
+			<li>Minimum 1 of these special characters - @$!%*?&</li>
+			<li>Must not include username</li>
+		</ul>
 		<form method="post" action="/register">
 			<label for="name">Name:</label>
 			<input id="name" name="name" type="text"></input>
 			<label for="pass">Password:</label>
-			<input id="pass" name="pass" type="text"></input>
+			<input id="pass" name="pass" type="password"></input>
 			<input type="submit" value="Register"></input>
 		</form>
 

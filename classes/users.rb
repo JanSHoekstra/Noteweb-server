@@ -9,6 +9,8 @@ class Users
   def initialize
     # Here we are initialising the variables.
     @users_path = 'db/users.json'
+    # Create empty json file if there is none
+    File.new(@users_path, 'w').puts('{}') unless File.exist?(@users_path)
     @users = JSON.parse(File.open(@users_path).read)
     # For Windows, because Windows doesn't include timezones for whatever reason.
     ENV['TZ'] = 'Europe/Amsterdam'
@@ -36,9 +38,18 @@ class Users
     @users.key?(name)
   end
 
+  # Minimum 9 characters, maximum 64
+  # Minimum 1 English uppercase + lowercase letter
+  # Minimum 1 digit
+  # Minimum 1 of these special characters - @$!%*?&
+  # Must not include username
+  def meets_requirements?(name, pass)
+    pass.match?(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{9,64}$/) && !pass.include?(name)
+  end
+
   # Adds a user with name and pass (is encrypted) to the DB
   def add(name, pass)
-    return false if exists?(name)
+    return false if exists?(name) || !meets_requirements?(name, pass)
 
     encrypted_pass = BCrypt::Password.create(pass)
     @users[name] = [encrypted_pass, encrypted_pass.salt]

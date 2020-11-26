@@ -37,7 +37,7 @@ class MyReadServer < Sinatra::Base
     if params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass])
       'Success!'
     else
-      halt 400, 'Bad request.'
+      halt 400, 'Bad request. Make sure the password contains at least 9 characters (max 64), 1 upper- and lowercase letter, a digit and doesn\'t include the username.'
     end
   end
 
