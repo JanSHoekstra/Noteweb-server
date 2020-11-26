@@ -57,6 +57,6 @@ class Users
   end
 
   def login(name, pass)
-    return BCrypt::Password.new(@users[name][0]) == pass if exists?(name)
+    exists?(name) && BCrypt::Password.new(@users[name][0]) == pass
   end
 end
