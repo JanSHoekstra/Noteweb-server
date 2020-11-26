@@ -1,9 +1,8 @@
 # Reading App Server
 This is the server used for communication with the reading app that is built [here](https://www.github.com/tr4wzified/socialreadingapp).
-Built in Ruby, use `ruby main.rb` to launch it.
 
-## Dependencies
-Install with `gem install <package>`.
+## Installation
+Requires the following packages:
 - `sinatra`
 - `sinatra-json`
 - `sinatra-contrib`
@@ -15,3 +14,10 @@ Install with `gem install <package>`.
 
 When on Windows:
 - `tzinfo-data`
+
+Install with `gem install <package>`, assuming you have already installed Ruby (2.7.2+).
+
+Download the repository (or clone it if you have Git: `git clone https://www.github.com/tr4wzified/SocialReadingAppServer`).
+
+## Running the server
+Run `ruby main.rb` in the repository directory. Access it on `127.0.0.1:2048`.
