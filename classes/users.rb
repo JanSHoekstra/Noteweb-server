@@ -9,7 +9,8 @@ class Users
   def initialize
     # Here we are initialising the variables.
     @users_path = 'db/users.json'
-    # Create empty json file if there is none
+    # Create empty json in db directory if those do not exist yet
+    Dir.mkdir('db') unless Dir.exist?('db')
     File.new(@users_path, 'w').puts('{}') unless File.exist?(@users_path)
     @users = JSON.parse(File.open(@users_path).read)
     # For Windows, because Windows doesn't include timezones for whatever reason.
