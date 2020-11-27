@@ -11,7 +11,7 @@ class Users
     @users_path = 'db/users.json'
     # Create empty json in db directory if those do not exist yet
     Dir.mkdir('db') unless Dir.exist?('db')
-    File.new(@users_path, 'w').puts('{}') unless File.exist?(@users_path)
+    File.open(@users_path, 'w') { |f| f.write('{}') } unless File.exist?(@users_path)
     @users = JSON.parse(File.open(@users_path).read)
     # For Windows, because Windows doesn't include timezones for whatever reason.
     ENV['TZ'] = 'Europe/Amsterdam'
