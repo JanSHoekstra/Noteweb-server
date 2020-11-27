@@ -15,6 +15,31 @@ class Book
     ''
   end
 
+  def set_goodreads_key
+    goodreads_path = 'db/goodreads.json'
+    if File.exist?(goodreads_path)
+      goodreads_key = (JSON.parse(File.open(goodreads_path).read))['apikey']
+    else
+      puts 'Goodreads key not found! Please enter it below:'
+      goodreads_key = gets.chomp
+      Dir.mkdir('db') unless Dir.exist?('db')
+      File.open(goodreads_path, 'w') { |f| f.write("{\"apikey\": \"#{goodreads_key}\"}") }
+    end
+    return goodreads_key
+  end
+
+  def get_rating(goodreads_key)
+    # 'curl -X GET -F 'key=<key>' -F 'isbns=0824985990' -F 'format=json' https://www.goodreads.com/book/review_counts.json'
+    unless @isbn == ''
+      query = {
+        'key': goodreads_key,
+        'isbns': "#{@isbn}",
+        'format': 'json'
+      }
+      goodreads_data = JSON.parse(HTTParty.get('https://www.goodreads.com/book/review_counts.json', :query => query).to_s)
+      @rating = value_of(goodreads_data['books'][0], 'average_rating').to_f
+    end
+  end
 
   def get_wiki(search)
     result = uri_to_json('https://en.wikipedia.org/w/api.php?action=opensearch&search=' + search)
@@ -49,9 +74,11 @@ class Book
 
     @author_wiki = get_wiki(@author)
     @book_wiki = get_wiki(@title)
+    @isbn = (value_of(book_data, 'isbn_10'))[0]
+    get_rating(set_goodreads_key)
   end
 
-  attr_reader :id, :title, :author_id, :author, :description, :subjects, :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki
+  attr_reader :id, :title, :author_id, :author, :description, :subjects, :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki, :rating
 
   def print_details
     puts "Id: #{@id}"
