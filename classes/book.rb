@@ -33,7 +33,7 @@ class Book
     unless @isbn == ''
       query = {
         'key': goodreads_key,
-        'isbns': "#{@isbn}",
+        'isbns': @isbn,
         'format': 'json'
       }
       goodreads_data = JSON.parse(HTTParty.get('https://www.goodreads.com/book/review_counts.json', :query => query).to_s)
