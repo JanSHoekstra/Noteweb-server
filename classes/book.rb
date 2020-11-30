@@ -2,18 +2,10 @@
 
 require 'httparty'
 
+load 'classes/helper.rb'
+
 # Book object containing information about books
 class Book
-  def value_of(array, value)
-    array.nil? || array[value].nil? ? '' : array[value]
-  end
-
-  def uri_to_json(uri)
-    JSON.parse(HTTParty.get(URI(uri)).to_s) ? JSON.parse(HTTParty.get(URI(uri)).to_s) : ''
-  rescue JSON::ParserError => e
-    puts e
-    ''
-  end
 
   def set_goodreads_key
     goodreads_path = 'db/goodreads.json'
