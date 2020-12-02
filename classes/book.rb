@@ -41,8 +41,11 @@ class Book
 
   def author_data(work_data)
     authors = value_of(work_data, 'authors')
-    author_data = uri_to_json("https://openlibrary.org/authors/#{authors[0]['key']}.json")
-    author_data || uri_to_json("https://openlibrary.org/authors/#{authors[0]['author']['key']}.json")
+    if authors && authors[0] && (authors[0]['key'] || authors[0]['author']['key'])
+      author_data = uri_to_json("https://openlibrary.org/authors/#{authors[0]['key']}.json")
+      author_data || uri_to_json("https://openlibrary.org/authors/#{authors[0]['author']['key']}.json")
+    else ''
+    end
   end
 
   def initialize(openlibrary_id)
