@@ -35,14 +35,14 @@ class Book
   end
 
   def get_wiki(search)
-    result = uri_to_json("https://en.wikipedia.org/w/api.php?action=opensearch&search=#{search}")
-    value_of(value_of(result, 3), 0)
+    wiki_data = uri_to_json("https://en.wikipedia.org/w/api.php?action=opensearch&search=#{search}")
+    value_of(value_of(wiki_data, 3), 0)
   end
 
   def author_data(work_data)
     authors = value_of(work_data, 'authors')
-    author_data = uri_to_json("https://openlibrary.org#{authors[0]['key']}.json")
-    author_data || uri_to_json("https://openlibrary.org#{authors[0]['author']['key']}.json")
+    author_data = uri_to_json("https://openlibrary.org/authors/#{authors[0]['key']}.json")
+    author_data || uri_to_json("https://openlibrary.org/authors/#{authors[0]['author']['key']}.json")
   end
 
   def initialize(openlibrary_id)
