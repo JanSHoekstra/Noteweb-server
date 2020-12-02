@@ -11,6 +11,7 @@ Requires the following packages:
 - `bcrypt`
 - `rufus-scheduler`
 - `httparty`
+- `addressable`
 
 When on Windows:
 - `tzinfo-data`

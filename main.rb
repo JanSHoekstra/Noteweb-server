@@ -9,6 +9,7 @@ require 'openssl'
 
 load 'classes/users.rb'
 load 'classes/book.rb'
+load 'classes/helper.rb'
 
 webrick_options = {
   Port: 2048,
@@ -32,6 +33,10 @@ class MyReadServer < Sinatra::Base
 
   get '/' do
     erb :index
+  end
+
+  get '/recommend/:author/:subject' do
+    json recommend(params[:author], params[:subject])
   end
 
   post '/register' do
