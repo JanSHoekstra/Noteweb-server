@@ -6,6 +6,7 @@ require 'sinatra/json'
 require 'webrick'
 require 'webrick/https'
 require 'openssl'
+require 'logger'
 
 load 'classes/users.rb'
 load 'classes/book.rb'
@@ -23,6 +24,16 @@ webrick_options = {
 }
 # The server
 class MyReadServer < Sinatra::Base
+  # Set up logger
+  logging_path = 'db/server.log'
+  Dir.mkdir('db') unless Dir.exist?('db')
+  File.open(logging_path, 'w') { |f| f.write('') } unless File.exist?(logging_path)
+  $logger = Logger.new(logging_path, 'daily')
+  $logger.level = Logger::WARN
+  $stdout.reopen(logging_path, 'w')
+  $stdout.sync = true
+  $stderr.reopen($stdout)
+
   # set :environment, :production
   enable :sessions
   users = Users.new
