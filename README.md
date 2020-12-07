@@ -12,6 +12,7 @@ Requires the following packages:
 - `rufus-scheduler`
 - `httparty`
 - `addressable`
+- `test-unit`
 
 When on Windows:
 - `tzinfo-data`
