@@ -34,6 +34,22 @@ class UnitTest < Test::Unit::TestCase
     assert_equal(true, u.del('testuser'))
   end
 
+  # Test to validate if the value_of method is functioning as intended
+  def test_value_of
+    test1 = nil
+    test2 = ''
+
+    assert_equal('', value_of(test1, 0))
+    assert_equal('', value_of(test2, 0))
+  end
+
+  # Test to validate if URIs can succesfully be parsed to JSON via the helper function
+  def test_uri_to_json
+    uri = 'http://ip.jsontest.com/'
+    hash = uri_to_json(uri)
+    assert_equal(false, value_of(hash, 'ip').nil?)
+  end
+
   # Test to check if using the same password does not result in the same string of data being saved to the DB - this should not be the case as a random salt is added before encryption
   def test_salting_diff_same_pass
     u = Users.new
@@ -56,14 +72,5 @@ class UnitTest < Test::Unit::TestCase
     b = Book.new('OL8141930M')
     assert_equal(true, b.isbn.to_s == '0786806931')
     assert_equal(true, b.rating > 3.5 && b.rating < 5) if b.set_goodreads_key
-  end
-
-  # Test to validate if the value_of method is functioning as intended
-  def test_value_of
-    test1 = nil
-    test2 = ''
-
-    assert_equal('', value_of(test1, 0))
-    assert_equal('', value_of(test2, 0))
   end
 end
