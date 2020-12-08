@@ -9,7 +9,7 @@ class Users
   def initialize
     # Here we are initialising the variables.
     @users_path = 'db/users.json'
-    # Create empty json in db directory if those do not exist yet
+j   # Create empty json in db directory if those do not exist yet
     Dir.mkdir('db') unless Dir.exist?('db')
     File.open(@users_path, 'w') { |f| f.write('{}') } unless File.exist?(@users_path)
     @users = JSON.parse(File.open(@users_path).read)
@@ -60,4 +60,6 @@ class Users
   def login(name, pass)
     exists?(name) && BCrypt::Password.new(@users[name][0]) == pass
   end
+
+  attr_reader :users
 end
