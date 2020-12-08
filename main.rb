@@ -13,6 +13,7 @@ load 'classes/book.rb'
 load 'classes/helper.rb'
 
 webrick_options = {
+  Host: '0.0.0.0',
   Port: 2048,
   Logger: WEBrick::Log.new($stderr, WEBrick::Log::DEBUG),
   DocumentRoot: '/ruby/htdocs',
