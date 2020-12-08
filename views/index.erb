@@ -42,10 +42,8 @@ input[type=submit] {
 	<% if !session[:id] %>
 		<h2>Login</h2>
 		<form method="post" action="/login" autocomplete="off">
-			<label for="name">Name:</label><br>
-			<input id="name" name="name" type="text"></input><br>
-			<label for="pass">Password:</label><br>
-			<input id="pass" name="pass" type="password"></input>
+			<input placeholder='Username' id="name" name="name" type="text"></input>
+			<input id="pass" placeholder='Password' name="pass" type="password"></input>
 			<input type="submit" value="Login"></input>
 		</form>
 
@@ -58,10 +56,8 @@ input[type=submit] {
 			<li>Must not include username</li>
 		</ul>
 		<form method="post" action="/register">
-			<label for="name">Name:</label>
-			<input id="name" name="name" type="text"></input>
-			<label for="pass">Password:</label>
-			<input id="pass" name="pass" type="password"></input>
+			<input placeholder='Username' id="name" name="name" type="text"></input>
+			<input placeholder='Password' id="pass" name="pass" type="password"></input>
 			<input type="submit" value="Register"></input>
 		</form>
 	<% end %>
