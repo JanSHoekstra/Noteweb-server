@@ -28,7 +28,10 @@ class MyReadServer < Sinatra::Base
   # Set up logger
   logging_path = 'db/server.log'
   Dir.mkdir('db') unless Dir.exist?('db')
-  File.open(logging_path, 'w') { |f| f.write('') } unless File.exist?(logging_path)
+  unless File.exist?(loggging_path)
+    f = File.new(logging_path, 'w')
+    f.close
+  end
   $logger = Logger.new(logging_path, 'daily')
   $logger.level = Logger::WARN
   $stdout.reopen(logging_path, 'w')
