@@ -4,6 +4,7 @@
 		<title>MyRead - Home</title>
 		<style>
 body {
+	font-family: 'Roboto', sans-serif;
 	background-color: #191919;
 	color: #D9D9D9;
 }
@@ -11,7 +12,7 @@ h1, h2, h3, h4, h5 {
 	color: #D93F3F;
 }
 input[type=text], input[type=password] {
-	background-color: #D93F3F;
+	background-color: #D9D9D9 !important;
 	color: #191919;
 	padding: 12px 12px;
 	border: none;
@@ -29,16 +30,21 @@ input[type=submit] {
 	<body>
 		<h1>MyRead - Home</h1>
 		<% if session[:id] %>
-		<p>Looks like meat's back on the menu, <%= session[:id] %>!</p>
+		<p>Hello there, <%= session[:id] %>!</p>
+		<video width='200px' height='auto' autoplay muted loop>
+			<source src="https://media.giphy.com/media/Nx0rz3jtxtEre/giphy.mp4" type="video/mp4">
+		</video>
 	<% else %>
-		<p>“You cannot pass,” he said. The orcs stood still, and a dead silence fell. “I am a servant of the Secret Fire, wielder of the flame of Anor. You cannot pass. The dark fire will not avail you, flame of Udûn. Go back to the Shadow! You cannot pass.”</p>
+		<p>You shall not pass!</p>
+		<img src='https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcdn-images-1.medium.com%2Fmax%2F833%2F1*kmsuUjqrZUkh_WW-nDFRgQ.gif&f=1&nofb=1' width='200px' height='auto'>
 	<% end %>
 
+	<% if !session[:id] %>
 		<h2>Login</h2>
-		<form method="post" action="/login">
-			<label for="name">Name:</label>
-			<input id="name" name="name" type="text"></input>
-			<label for="pass">Password:</label>
+		<form method="post" action="/login" autocomplete="off">
+			<label for="name">Name:</label><br>
+			<input id="name" name="name" type="text"></input><br>
+			<label for="pass">Password:</label><br>
 			<input id="pass" name="pass" type="password"></input>
 			<input type="submit" value="Login"></input>
 		</form>
@@ -58,6 +64,7 @@ input[type=submit] {
 			<input id="pass" name="pass" type="password"></input>
 			<input type="submit" value="Register"></input>
 		</form>
+	<% end %>
 
 		<% if session[:id] %>
 		<h2>Sign out</h2>
