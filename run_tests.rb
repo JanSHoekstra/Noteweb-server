@@ -26,6 +26,14 @@ class UnitTest < Test::Unit::TestCase
     assert_equal(false, u.login('testuser', 'faketestpassword'))
   end
 
+  # Test to check if it's possible to remove registered users
+  def test_del_user
+    u = Users.new
+    assert_equal(true, u.add('testuser', 'Testp4ssword123!'))
+
+    assert_equal(true, u.del('testuser'))
+  end
+
   # Test to check if using the same password does not result in the same string of data being saved to the DB - this should not be the case as a random salt is added before encryption
   def test_salting_diff_same_pass
     u = Users.new

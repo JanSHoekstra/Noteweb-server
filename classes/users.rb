@@ -57,6 +57,11 @@ j   # Create empty json in db directory if those do not exist yet
     @changed_since_last_write = true
   end
 
+  def del(name)
+    @users.delete(name)
+    @changed_since_last_write = true
+  end
+
   def login(name, pass)
     exists?(name) && BCrypt::Password.new(@users[name][0]) == pass
   end
