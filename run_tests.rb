@@ -37,7 +37,6 @@ class UnitTest < Test::Unit::TestCase
 
   # Test to validate if there's book data being returned from the OpenLibrary DB.
   def test_validate_book_data
-    # include checks for author etc
     b = Book.new('OL26412312M')
     assert_equal(true, b.title == 'The bazaar of bad dreams')
     assert_equal(true, b.author == 'Stephen King')
@@ -48,7 +47,7 @@ class UnitTest < Test::Unit::TestCase
 
     b = Book.new('OL8141930M')
     assert_equal(true, b.isbn.to_s == '0786806931')
-    assert_equal(true, b.rating > 3.5 && b.rating < 5)
+    assert_equal(true, b.rating > 3.5 && b.rating < 5) if b.set_goodreads_key
   end
 
   # Test to validate if the value_of method is functioning as intended

@@ -12,11 +12,12 @@ class Book
       return (JSON.parse(File.open(goodreads_path).read))['apikey']
     end
 
-    puts 'Goodreads key not found! Please enter it below:'
-    goodreads_key = gets.chomp
-    Dir.mkdir('db') unless Dir.exist?('db')
-    File.open(goodreads_path, 'w') { |f| f.write("{\"apikey\": \"#{goodreads_key}\"}") }
-    goodreads_key
+    warn 'Goodreads key not found! Rating data will be empty.'
+    # puts 'Goodreads key not found! Please enter it below:'
+    # goodreads_key = gets.chomp
+    # Dir.mkdir('db') unless Dir.exist?('db')
+    # File.open(goodreads_path, 'w') { |f| f.write("{\"apikey\": \"#{goodreads_key}\"}") }
+    # goodreads_key
   end
 
   def get_rating(goodreads_key)
