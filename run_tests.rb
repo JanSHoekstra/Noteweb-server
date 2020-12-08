@@ -6,6 +6,7 @@ require_relative 'classes/users.rb'
 require_relative 'classes/helper.rb'
 require_relative 'classes/book.rb'
 
+# Class containing all unit tests
 class UnitTest < Test::Unit::TestCase
   # Test to check if requirements for passwords are working correctly when signing up for an account
   def test_meets_requirements
@@ -36,11 +37,19 @@ class UnitTest < Test::Unit::TestCase
 
   # Test to validate if there's book data being returned from the OpenLibrary DB.
   def test_validate_book_data
-    b = Book.new('OL11077267W')
-    assert_equal(true, b.title == 'Record to test what happens when you put a space at the endof a line')
     # include checks for author etc
-  end
+    b = Book.new('OL26412312M')
+    assert_equal(true, b.title == 'The bazaar of bad dreams')
+    assert_equal(true, b.author == 'Stephen King')
 
+    b = Book.new('OL145191W')
+    assert_equal(true, b.title == 'Picasso')
+    assert_equal(true, b.subjects.include?('Amsterdam (Netherlands)'))
+
+    b = Book.new('OL8141930M')
+    assert_equal(true, b.isbn.to_s == '0786806931')
+    assert_equal(true, b.rating > 3.5 && b.rating < 5)
+  end
 
   # Test to validate if the value_of method is functioning as intended
   def test_value_of

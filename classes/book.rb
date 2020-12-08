@@ -73,7 +73,7 @@ class Book
   end
 
   attr_reader :id, :title, :author_id, :author, :description, :subjects,
-    :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki, :rating
+    :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki, :rating, :isbn
 
   def print_details
     puts "Id: #{@id}"
