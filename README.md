@@ -23,3 +23,6 @@ Download the repository (or clone it if you have Git: `git clone https://www.git
 
 ## Running the server
 Run `ruby main.rb` in the repository directory. Access it on `127.0.0.1:2048`.
+
+## Running the unit tests
+Run `ruby run_tests.rb` in the repository directory.
