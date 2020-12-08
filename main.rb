@@ -6,7 +6,6 @@ require 'sinatra/json'
 require 'webrick'
 require 'webrick/https'
 require 'openssl'
-require 'logger'
 
 load 'classes/users.rb'
 load 'classes/book.rb'
@@ -28,12 +27,7 @@ class MyReadServer < Sinatra::Base
   # Set up logger
   logging_path = 'db/server.log'
   Dir.mkdir('db') unless Dir.exist?('db')
-  unless File.exist?(loggging_path)
-    f = File.new(logging_path, 'w')
-    f.close
-  end
-  $logger = Logger.new(logging_path, 'daily')
-  $logger.level = Logger::WARN
+  File.new(logging_path, 'w').close unless File.exist?(logging_path)
   $stdout.reopen(logging_path, 'w')
   $stdout.sync = true
   $stderr.reopen($stdout)

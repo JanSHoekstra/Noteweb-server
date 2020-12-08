@@ -24,3 +24,7 @@ def recommend(author = '', subject = '')
   }
   JSON.parse(HTTParty.get(site: 'https://openlibrary.org/search.json', query: query).to_s)
 end
+
+def log(msg)
+  puts '[' + Time.now.to_s + '] LOG   ' + msg.to_s
+end
