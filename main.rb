@@ -7,9 +7,9 @@ require 'webrick'
 require 'webrick/https'
 require 'openssl'
 
-load 'classes/users.rb'
-load 'classes/book.rb'
-load 'classes/helper.rb'
+require_relative 'classes/users.rb'
+require_relative 'classes/book.rb'
+require_relative 'classes/helper.rb'
 
 webrick_options = {
   Host: '0.0.0.0',

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'httparty'
-load 'classes/helper.rb'
+require_relative 'helper.rb'
 
 # Book object containing information about books
 class Book
