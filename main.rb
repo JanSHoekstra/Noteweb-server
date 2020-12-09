@@ -33,7 +33,11 @@ class MyReadServer < Sinatra::Base
   $stderr.reopen($stdout)
 
   # set :environment, :production
+
+  # Enable Sinatra session storage, sessions are reset after 1800 seconds
   enable :sessions
+  set :sessions, :expire_after => 1800
+
   users = Users.new
   users.write_every('3s')
 
@@ -42,10 +46,6 @@ class MyReadServer < Sinatra::Base
 
   get '/' do
     erb :index
-  end
-
-  get '/recommend/:author/:subject' do
-    json recommend(params[:author], params[:subject])
   end
 
   post '/register' do
@@ -70,6 +70,46 @@ class MyReadServer < Sinatra::Base
     redirect '/'
   end
 
+  get '/user/:name' do
+    if users.exists?(params[:name]) && params[:name] == session[:id]
+      "Hello #{params[:name]}!"
+    else
+      halt 401, 'Access denied. <br><img src="https://http.cat/401">'
+    end
+  end
+
+  get '/user/:name/book_collections' do
+    if users.exists?(params[:name]) && params[:name] == session[:id]
+      json users.users[params[:name]][1]
+    else
+      halt 401, 'Access denied. <br><img src="https://http.cat/401">'
+    end
+  end
+
+  get '/user/:name/book_collections/add/:collection_name/:book_id' do
+    if users.exists?(params[:name]) && params[:name] == session[:id]
+      if users.add_collection(params[:name], params[:collection_name], [params[:book_id].to_s])
+        "Book collection #{params[:collection_name]} has been added to the library of #{params[:name]}!"
+      else
+        "Failed to add book collection '#{params[:collection_name]}'! The collection name may already be in use."
+      end
+    else
+      halt 401, 'Access denied. <br><img src="https://http.cat/401">'
+    end
+  end
+
+  get '/user/:name/book_collections/del/:collection_name' do
+    if users.exists?(params[:name]) && params[:name] == session[:id]
+      if users.del_collection(params[:name], params[:collection_name])
+        "Book collection #{params[:collection_name]} has been removed from the library of #{params[:name]}"
+      else
+        "Failed to add book collection '#{params[:collection_name]}'! The collection name may not exist."
+      end
+    else
+      halt 401, 'Access denied. <br><img src="https://http.cat/401">'
+    end
+  end
+
   get '/book/:book' do
     if session[:id]
       books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
@@ -87,6 +127,10 @@ class MyReadServer < Sinatra::Base
     else
       halt 401, 'Access denied.<br><img src="https://http.cat/401">'
     end
+  end
+
+  get '/recommend/:author/:subject' do
+    json recommend(params[:author], params[:subject])
   end
 end
 

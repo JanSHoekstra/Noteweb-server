@@ -3,6 +3,7 @@
 require 'json'
 require 'rufus-scheduler'
 require 'bcrypt'
+require_relative 'bookcollection.rb'
 
 # User class
 class Users
@@ -53,7 +54,7 @@ j   # Create empty json in db directory if those do not exist yet
     return false if exists?(name) || !meets_requirements?(name, pass)
 
     encrypted_pass = BCrypt::Password.create(pass)
-    @users[name] = [encrypted_pass]
+    @users[name] = [encrypted_pass, []]
     @changed_since_last_write = true
   end
 
@@ -64,6 +65,24 @@ j   # Create empty json in db directory if those do not exist yet
 
   def login(name, pass)
     exists?(name) && BCrypt::Password.new(@users[name][0]) == pass
+  end
+
+  def add_collection(name, collection_name, books = [])
+    @users[name][1].each do |bc|
+      return false if bc['name'] == collection_name
+    end
+    bc = BookCollection.new(collection_name, books)
+    @users[name][1].push(bc.to_hash)
+    @changed_since_last_write = true
+  end
+
+  def del_collection(name, collection_name)
+    @users[name][1].each_with_index do |bc, i|
+      if bc['name'] == collection_name
+        @users[name][1].delete_at(i)
+        @changed_since_last_write = true
+      end
+    end
   end
 
   attr_reader :users
