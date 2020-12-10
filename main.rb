@@ -138,6 +138,29 @@ class MyReadServer < Sinatra::Base
     end
   end
 
+  get '/user/:name/book_collections/:book_collection' do
+    if session[:id]
+      json users.get_collection(params[:name], params[:book_collection])
+    else
+      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
+    end
+  end
+
+  get 'book/search/:search' do
+    if session[:id]
+      json search(params[:search])
+    else
+      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
+    end
+  end
+
+  get 'book/recommend/:author/:subject' do
+    if session[:id]
+      json recommend(params[:author], params[:subject])
+    else
+      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
+    end
+  end
 
   get '/book/:book' do
     if session[:id]
@@ -153,22 +176,6 @@ class MyReadServer < Sinatra::Base
       books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
       b = books[params[:book]]
       b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
-    else
-      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
-    end
-  end
-
-  get '/search/:search' do
-    if session[:id]
-      json search(params[:search])
-    else
-      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
-    end
-  end
-
-  get '/recommend/:author/:subject' do
-    if session[:id]
-      json recommend(params[:author], params[:subject])
     else
       halt 401, 'Access denied.<br><img src="https://http.cat/401">'
     end

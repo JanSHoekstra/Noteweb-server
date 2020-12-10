@@ -91,5 +91,11 @@ j   # Create empty json in db directory if those do not exist yet
     end
   end
 
+  def get_collection(name, collection_name)
+    @users[name][1].each do |bc|
+      return bc if collection_name == bc['name']
+    end
+  end
+
   attr_reader :users
 end
