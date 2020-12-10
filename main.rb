@@ -146,7 +146,7 @@ class MyReadServer < Sinatra::Base
     end
   end
 
-  get 'search_book/:search' do
+  get '/search_book/:search' do
     if session[:id]
       json search(params[:search])
     else
@@ -154,7 +154,7 @@ class MyReadServer < Sinatra::Base
     end
   end
 
-  get 'recommend_book/:author/:subject' do
+  get '/recommend_book/:author/:subject' do
     if session[:id]
       json recommend(params[:author], params[:subject])
     else
