@@ -85,5 +85,11 @@ j   # Create empty json in db directory if those do not exist yet
     end
   end
 
+  def chname_collection(name, collection_name, new_collection_name)
+    @users[name][1].each do |bc|
+      bc['name'] = new_collection_name if collection_name == bc['name']
+    end
+  end
+
   attr_reader :users
 end

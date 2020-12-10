@@ -126,6 +126,19 @@ class MyReadServer < Sinatra::Base
     end
   end
 
+  get '/user/:name/book_collections/chname/:collection_name/:new_collection_name' do
+    if users.exists?(params[:name]) && params[:name] == session[:id]
+      if users.chname_collection(params[:name], params[:collection_name], params[:new_collection_name])
+        "Book collection #{params[:collection_name]} has been renamed to #{params[:new_collection_name]}"
+      else
+        "Failed to add book collection '#{params[:collection_name]}'! The collection name may not exist."
+      end
+    else
+      halt 401, 'Access denied. <br><img src="https://http.cat/401">'
+    end
+  end
+
+
   get '/book/:book' do
     if session[:id]
       books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
