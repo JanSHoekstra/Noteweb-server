@@ -145,8 +145,20 @@ class MyReadServer < Sinatra::Base
     end
   end
 
+  get '/search/:search' do
+    if session[:id]
+      json search(params[:search])
+    else
+      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
+    end
+  end
+
   get '/recommend/:author/:subject' do
-    json recommend(params[:author], params[:subject])
+    if session[:id]
+      json recommend(params[:author], params[:subject])
+    else
+      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
+    end
   end
 
   not_found do
