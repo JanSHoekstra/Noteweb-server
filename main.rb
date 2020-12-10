@@ -86,9 +86,10 @@ class MyReadServer < Sinatra::Base
     end
   end
 
-  get '/user/:name/book_collections/add/:collection_name/:book_id' do
+  get '/user/:name/book_collections/add/:collection_name/:book_ids' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
-      if users.add_collection(params[:name], params[:collection_name], [params[:book_id].to_s])
+      book_ids = params[:book_ids].to_s.split(';')
+      if users.add_collection(params[:name], params[:collection_name], book_ids)
         "Book collection #{params[:collection_name]} has been added to the library of #{params[:name]}!"
       else
         "Failed to add book collection '#{params[:collection_name]}'! The collection name may already be in use."
