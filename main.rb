@@ -57,7 +57,6 @@ class MyReadServer < Sinatra::Base
   users.write_every('3s')
 
   # Books cache - store books in RAM when they have already been fetched
-  books_lifetime = {}
   books = {}
 
   get '/' do
@@ -68,7 +67,7 @@ class MyReadServer < Sinatra::Base
     if params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass])
       'Success!'
     else
-      halt 400, 'Bad request. Make sure the password contains at least 9 characters (max 64), 1 upper- and lowercase letter, a digit, a special character and doesn\'t include the username.<br><img src="https://http.cat/400">'
+      status 400
     end
   end
 
@@ -77,7 +76,7 @@ class MyReadServer < Sinatra::Base
       session[:id] = params[:name]
       redirect '/'
     else
-      halt 401, 'Access denied. Have you entered a correct username and password?<br><img src="https://http.cat/401">'
+      status 401
     end
   end
 
@@ -90,7 +89,7 @@ class MyReadServer < Sinatra::Base
     if users.exists?(params[:name]) && params[:name] == session[:id]
       "Hello #{params[:name]}!"
     else
-      halt 401, 'Access denied. <br><img src="https://http.cat/401">'
+      status 401
     end
   end
 
@@ -98,7 +97,7 @@ class MyReadServer < Sinatra::Base
     if users.exists?(params[:name]) && params[:name] == session[:id]
       json users.users[params[:name]][1]
     else
-      halt 401, 'Access denied. <br><img src="https://http.cat/401">'
+      status 401
     end
   end
 
@@ -111,7 +110,7 @@ class MyReadServer < Sinatra::Base
         "Failed to add book collection '#{params[:collection_name]}'! The collection name may already be in use."
       end
     else
-      halt 401, 'Access denied. <br><img src="https://http.cat/401">'
+      status 401
     end
   end
 
@@ -123,7 +122,7 @@ class MyReadServer < Sinatra::Base
         "Failed to add book collection '#{params[:collection_name]}'! The collection name may not exist."
       end
     else
-      halt 401, 'Access denied. <br><img src="https://http.cat/401">'
+      status 401
     end
   end
 
@@ -135,7 +134,7 @@ class MyReadServer < Sinatra::Base
         "Failed to add book collection '#{params[:collection_name]}'! The collection name may not exist."
       end
     else
-      halt 401, 'Access denied. <br><img src="https://http.cat/401">'
+      status 401
     end
   end
 
@@ -143,7 +142,7 @@ class MyReadServer < Sinatra::Base
     if session[:id]
       json users.get_collection(params[:name], params[:book_collection])
     else
-      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
+      status 401
     end
   end
 
@@ -151,7 +150,7 @@ class MyReadServer < Sinatra::Base
     if session[:id]
       json search(params[:search])
     else
-      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
+      status 401
     end
   end
 
@@ -159,7 +158,7 @@ class MyReadServer < Sinatra::Base
     if session[:id]
       json recommend(params[:author], params[:subject])
     else
-      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
+      status 401
     end
   end
 
@@ -168,7 +167,7 @@ class MyReadServer < Sinatra::Base
       books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
       json books[params[:book]].to_hash
     else
-      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
+      status 401
     end
   end
 
@@ -178,12 +177,23 @@ class MyReadServer < Sinatra::Base
       b = books[params[:book]]
       b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
     else
-      halt 401, 'Access denied.<br><img src="https://http.cat/401">'
+      status 401
     end
   end
 
+  error 400 do
+    @error_code = 400
+    erb :error
+  end
+
+  error 401 do
+    @error_code = 401
+    erb :error
+  end
+
   not_found do
-    halt 404, 'Page not found.<br><img src="https://http.cat/404">'
+    @error_code = 404
+    erb :error
   end
 end
 
