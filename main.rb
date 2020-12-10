@@ -57,6 +57,7 @@ class MyReadServer < Sinatra::Base
   users.write_every('3s')
 
   # Books cache - store books in RAM when they have already been fetched
+  books_lifetime = {}
   books = {}
 
   get '/' do
@@ -101,7 +102,7 @@ class MyReadServer < Sinatra::Base
     end
   end
 
-  get '/user/:name/book_collections/add/:collection_name/:book_ids' do
+  get '/user/:name/add_book_collection/:collection_name/:book_ids' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       book_ids = params[:book_ids].to_s.split(';')
       if users.add_collection(params[:name], params[:collection_name], book_ids)
@@ -114,7 +115,7 @@ class MyReadServer < Sinatra::Base
     end
   end
 
-  get '/user/:name/book_collections/del/:collection_name' do
+  get '/user/:name/del_book_collection/:collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       if users.del_collection(params[:name], params[:collection_name])
         "Book collection #{params[:collection_name]} has been removed from the library of #{params[:name]}"
@@ -126,7 +127,7 @@ class MyReadServer < Sinatra::Base
     end
   end
 
-  get '/user/:name/book_collections/chname/:collection_name/:new_collection_name' do
+  get '/user/:name/chname_book_collection/:collection_name/:new_collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       if users.chname_collection(params[:name], params[:collection_name], params[:new_collection_name])
         "Book collection #{params[:collection_name]} has been renamed to #{params[:new_collection_name]}"
@@ -146,7 +147,7 @@ class MyReadServer < Sinatra::Base
     end
   end
 
-  get 'book/search/:search' do
+  get 'search_book/:search' do
     if session[:id]
       json search(params[:search])
     else
@@ -154,7 +155,7 @@ class MyReadServer < Sinatra::Base
     end
   end
 
-  get 'book/recommend/:author/:subject' do
+  get 'recommend_book/:author/:subject' do
     if session[:id]
       json recommend(params[:author], params[:subject])
     else
