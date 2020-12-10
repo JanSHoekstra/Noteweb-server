@@ -6,6 +6,7 @@ require 'sinatra/json'
 require 'webrick'
 require 'webrick/https'
 require 'openssl'
+require 'rack/throttle'
 
 require_relative 'classes/users.rb'
 require_relative 'classes/book.rb'
@@ -22,6 +23,7 @@ webrick_options = {
   SSLPrivateKey: OpenSSL::PKey::RSA.new(File.open('alt.key').read),
   SSLCertName: [['CN', WEBrick::Utils.getservername]]
 }
+
 # The server
 class MyReadServer < Sinatra::Base
   # Set up logger
@@ -32,9 +34,22 @@ class MyReadServer < Sinatra::Base
   $stdout.sync = true
   $stderr.reopen($stdout)
 
+  # Configure rate limiting - 10 POST requests an hour
+  rules = [
+    { method: 'POST', limit: 10 }
+    # { method: 'GET', limit: 10 },
+  ]
+  ip_whitelist = [
+    '127.0.0.1',
+    '0.0.0.0'
+  ]
+  configure :development, :production do
+    use Rack::Throttle::Rules, rules: rules, ip_whitelist: ip_whitelist, time_window: :hour
+  end
+
   # set :environment, :production
 
-  # Enable Sinatra session storage, sessions are reset after 1800 seconds
+  # Enable Sinatra session storage, sessions are reset after 1800 seconds (30 min)
   enable :sessions
   set :sessions, :expire_after => 1800
 
@@ -132,6 +147,10 @@ class MyReadServer < Sinatra::Base
 
   get '/recommend/:author/:subject' do
     json recommend(params[:author], params[:subject])
+  end
+
+  not_found do
+    halt 404, 'Page not found.<br><img src="https://http.cat/404">'
   end
 end
 

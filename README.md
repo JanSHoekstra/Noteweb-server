@@ -13,6 +13,7 @@ Requires the following packages:
 - `httparty`
 - `addressable`
 - `test-unit`
+- `rack-throttle`
 
 When on Windows:
 - `tzinfo-data`
