@@ -67,6 +67,14 @@ j   # Create empty json in db directory if those do not exist yet
     exists?(name) && BCrypt::Password.new(@users[name][0]) == pass
   end
 
+  def chpass(name, old_pass, new_pass)
+    return false if !login(name, old_pass) || !meets_requirements?(name, new_pass)
+
+    encrypted_pass = BCrypt::Password.create(new_pass)
+    @users[name][0] = encrypted_pass
+    @changed_since_last_write = true
+  end
+
   def add_collection(name, collection_name, books = [])
     @users[name][1].each do |bc|
       return false if bc['name'] == collection_name

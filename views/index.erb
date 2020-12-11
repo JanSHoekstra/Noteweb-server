@@ -63,7 +63,7 @@ input[type=submit] {
 		<video width='200px' height='auto' autoplay muted loop>
 			<source src="https://media.giphy.com/media/Nx0rz3jtxtEre/giphy.mp4" type="video/mp4">
 		</video>
-		<p>Hello there, <%= session[:id] %>!</p>
+		<p>Hello there, <b id="username"><%= session[:id] %></b>!</p>
 		<a href="/user/<%= session[:id] %>">My profile</a><br>
 		<a href="/user/<%= session[:id] %>/book_collections">My book collections</a>
 		<h2>Sign out</h2>
@@ -76,11 +76,23 @@ input[type=submit] {
 				document.getbook.action = '/book/' + document.getElementById("book").value;
 				return true;
 			}
+			function ChangePassword() {
+				document.getbook.action = '/user/' + document.getElementById("username").value + 'change_password';
+				return true;
+			}
 		</script>
 		<h2>Get book</h2>
 		<form name="getbook" method="get" action="/book" onsubmit="GetBook()">
 			<input type="text" id="book" placeholder="OpenLibrary ID"</input>
-			<input type="submit" value='Submit'>
+			<input type="submit" value='Submit'></input>
+		</form>
+
+		<h2>Change password</h2>
+		<!-- change hardcoded -->
+		<form method="post" action="/user" onsubmit="ChangePassword()">
+			<input type="password" placeholder="Old password"></input>
+			<input type="password" placeholder="New password"></input>
+			<input type="submit" value='Submit'></input>
 		</form>
 	<% end %>
 
