@@ -59,20 +59,15 @@ class MyReadServer < Sinatra::Base
   # Books cache - store books in RAM when they have already been fetched
   books = {}
 
-  def http_code(response_code)
-    @response_code = response_code
-    erb :error
-  end
-
   get '/' do
     erb :index
   end
 
   post '/register' do
     if params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass])
-      http_code 201
+      halt 201
     else
-      http_code 400
+      halt 400
     end
   end
 
@@ -81,7 +76,7 @@ class MyReadServer < Sinatra::Base
       session[:id] = params[:name]
       redirect '/'
     else
-      http_code 401
+      halt 401
     end
   end
 
@@ -92,9 +87,9 @@ class MyReadServer < Sinatra::Base
 
   get '/user/:name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
-      http_code 200
+      halt 200
     else
-      http_code 401
+      halt 401
     end
   end
 
@@ -102,15 +97,15 @@ class MyReadServer < Sinatra::Base
     if params.key?(:name) && params.key?(:new_pass) && params.key?(:old_pass)
       if params[:name] == session[:id]
         if users.chpass(name, old_pass, new_pass)
-          http_code 200
+          halt 200
         else
-          http_code 400
+          halt 400
         end
       else
-        http_code 401
+        halt 401
       end
     else
-      http_code 400
+      halt 400
     end
   end
 
@@ -118,19 +113,35 @@ class MyReadServer < Sinatra::Base
     if users.exists?(params[:name]) && params[:name] == session[:id]
       json users.users[params[:name]][1]
     else
-      http_code 401
+      halt 401
+    end
+  end
+
+  get '/user/:name/add_book_to_collection/:collection_name/:book_id' do
+    if users.exists?(params[:name]) && params[:name] == session[:id]
+      users.add_book_to_collection(params[:name], params[:collection_name], params[:book_id])
+    else
+      halt 401
+    end
+  end
+
+  get '/user/:name/del_book_from_collection/:collection_name/:book_id' do
+    if users.exists?(params[:name]) && params[:name] == session[:id]
+      users.add_book_to_collection(params[:name], params[:collection_name], params[:book_id])
+    else
+      halt 401
     end
   end
 
   get '/user/:name/add_book_collection/:collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       if users.add_collection(params[:name], params[:collection_name])
-        http_code 201
+        halt 201
       else
-        http_code 500
+        halt 500
       end
     else
-      http_code 401
+      halt 401
     end
   end
 
@@ -138,36 +149,36 @@ class MyReadServer < Sinatra::Base
     if users.exists?(params[:name]) && params[:name] == session[:id]
       book_ids = params[:book_ids].to_s.split(';') unless params[:book_ids].nil?
       if users.add_collection(params[:name], params[:collection_name], book_ids)
-        http_code 201
+        halt 201
       else
-        http_code 500
+        halt 500
       end
     else
-      http_code 401
+      halt 401
     end
   end
 
   get '/user/:name/del_book_collection/:collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       if users.del_collection(params[:name], params[:collection_name])
-        http_code 200
+        halt 200
       else
-        http_code 500
+        halt 500
       end
     else
-      http_code 401
+      halt 401
     end
   end
 
   get '/user/:name/chname_book_collection/:collection_name/:new_collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       if users.chname_collection(params[:name], params[:collection_name], params[:new_collection_name])
-        http_code 200
+        halt 200
       else
-        http_code 500
+        halt 500
       end
     else
-      http_code 401
+      halt 401
     end
   end
 
@@ -175,7 +186,7 @@ class MyReadServer < Sinatra::Base
     if session[:id]
       json users.get_collection(params[:name], params[:book_collection])
     else
-      http_code 401
+      halt 401
     end
   end
 
@@ -183,7 +194,7 @@ class MyReadServer < Sinatra::Base
     if session[:id]
       json search(params[:search])
     else
-      http_code 401
+      halt 401
     end
   end
 
@@ -191,7 +202,7 @@ class MyReadServer < Sinatra::Base
     if session[:id]
       json recommend(params[:author], params[:subject])
     else
-      http_code 401
+      halt 401
     end
   end
 
@@ -200,7 +211,7 @@ class MyReadServer < Sinatra::Base
       books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
       json books[params[:book]].to_hash
     else
-      http_code 401
+      halt 401
     end
   end
 
@@ -210,8 +221,28 @@ class MyReadServer < Sinatra::Base
       b = books[params[:book]]
       b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
     else
-      http_code 401
+      halt 401
     end
+  end
+
+  error 201 do
+    @response_code = 201
+    erb :error, locals: { message: body[0] }
+  end
+
+  error 400 do
+    @response_code = 400
+    erb :error, locals: { message: body[0] }
+  end
+
+  error 401 do
+    @response_code = 401
+    erb :error, locals: { message: body[0] }
+  end
+
+  error 500 do
+    @response_code = 500
+    erb :error, locals: { message: body[0] }
   end
 end
 

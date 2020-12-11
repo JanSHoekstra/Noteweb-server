@@ -105,5 +105,23 @@ j   # Create empty json in db directory if those do not exist yet
     end
   end
 
+  def add_book_to_collection(name, collection_name, book_id)
+    @users[name][1].each do |bc|
+      if collection_name == bc['name']
+        bc['books'].push(book_id.to_s)
+        return true
+      end
+    end
+  end
+
+  def del_book_from_collection(name, collection_name, book_id)
+    @users[name][1].each do |bc|
+      if collection_name == bc['name']
+        bc['books'].delete(book_id.to_s)
+        return true
+      end
+    end
+  end
+
   attr_reader :users
 end
