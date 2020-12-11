@@ -77,7 +77,7 @@ input[type=submit] {
 				return true;
 			}
 			function ChangePassword() {
-				document.getbook.action = '/user/' + document.getElementById("username").value + 'change_password';
+				document.changepassword.action = '/user/' + '<%= session[:id] %>' + '/change_password';
 				return true;
 			}
 		</script>
@@ -89,9 +89,9 @@ input[type=submit] {
 
 		<h2>Change password</h2>
 		<!-- change hardcoded -->
-		<form method="post" action="/user" onsubmit="ChangePassword()">
-			<input type="password" placeholder="Old password"></input>
-			<input type="password" placeholder="New password"></input>
+		<form name="changepassword" method="post" action="/user" onsubmit="ChangePassword()">
+			<input name="old_pass" id="old_pass" type="password" placeholder="Old password"></input>
+			<input name="new_pass" id="new_pass" type="password" placeholder="New password"></input>
 			<input type="submit" value='Submit'></input>
 		</form>
 	<% end %>

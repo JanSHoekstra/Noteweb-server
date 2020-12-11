@@ -87,17 +87,17 @@ class MyReadServer < Sinatra::Base
 
   get '/user/:name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
-      halt 200
+      status 200
     else
       halt 401
     end
   end
 
   post '/user/:name/change_password' do
-    if params.key?(:name) && params.key?(:new_pass) && params.key?(:old_pass)
+    if params.key?(:name) && params.key?(:old_pass) && params.key?(:new_pass)
       if params[:name] == session[:id]
-        if users.chpass(name, old_pass, new_pass)
-          halt 200
+        if users.chpass(params[:name], params[:old_pass], params[:new_pass])
+          status 200
         else
           halt 400
         end
@@ -161,7 +161,7 @@ class MyReadServer < Sinatra::Base
   get '/user/:name/del_book_collection/:collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       if users.del_collection(params[:name], params[:collection_name])
-        halt 200
+        status 200
       else
         halt 500
       end
@@ -173,7 +173,7 @@ class MyReadServer < Sinatra::Base
   get '/user/:name/chname_book_collection/:collection_name/:new_collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       if users.chname_collection(params[:name], params[:collection_name], params[:new_collection_name])
-        halt 200
+        status 200
       else
         halt 500
       end
