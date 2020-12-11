@@ -96,6 +96,7 @@ j   # Create empty json in db directory if those do not exist yet
   def chname_collection(name, collection_name, new_collection_name)
     @users[name][1].each do |bc|
       bc['name'] = new_collection_name if collection_name == bc['name']
+      @changed_since_last_write = true
     end
   end
 
