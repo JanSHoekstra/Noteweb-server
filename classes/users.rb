@@ -109,7 +109,7 @@ j   # Create empty json in db directory if those do not exist yet
     @users[name][1].each do |bc|
       if collection_name == bc['name']
         bc['books'].push(book_id.to_s)
-        return true
+        @changed_since_last_write = true
       end
     end
   end
@@ -118,7 +118,7 @@ j   # Create empty json in db directory if those do not exist yet
     @users[name][1].each do |bc|
       if collection_name == bc['name']
         bc['books'].delete(book_id.to_s)
-        return true
+        @changed_since_last_write = true
       end
     end
   end
