@@ -14,6 +14,7 @@ Requires the following packages:
 - `addressable`
 - `test-unit`
 - `rack-throttle`
+- `encrypted_cookie`
 
 When on Windows:
 - `tzinfo-data`

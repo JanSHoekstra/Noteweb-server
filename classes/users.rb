@@ -108,12 +108,12 @@ j   # Create empty json in db directory if those do not exist yet
 
   def add_book_to_collection(name, collection_name, book_id)
     @users[name][1].each do |bc|
-      if collection_name == bc['name']
-        return false if bc['books'].include?(book_id)
+      next if collection_name != bc['name']
+      return false if bc['books'].include?(book_id)
 
-        bc['books'].push(book_id.to_s)
-        @changed_since_last_write = true
-      end
+      bc['books'].push(book_id.to_s)
+      @changed_since_last_write = true
+      return true
     end
   end
 
