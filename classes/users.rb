@@ -79,7 +79,7 @@ j   # Create empty json in db directory if those do not exist yet
     @users[name][1].each do |bc|
       return false if bc['name'] == collection_name
     end
-    bc = BookCollection.new(collection_name, books)
+    bc = BookCollection.new(collection_name, books.uniq)
     @users[name][1].push(bc.to_hash)
     @changed_since_last_write = true
   end
@@ -109,6 +109,8 @@ j   # Create empty json in db directory if those do not exist yet
   def add_book_to_collection(name, collection_name, book_id)
     @users[name][1].each do |bc|
       if collection_name == bc['name']
+        return false if bc['books'].include?(book_id)
+
         bc['books'].push(book_id.to_s)
         @changed_since_last_write = true
       end
