@@ -4,7 +4,7 @@
 class BookCollection
   def initialize(name, books = [])
     @name = name.to_s
-    @books = books
+    @books = books.uniq
   end
 
   def to_hash

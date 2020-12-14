@@ -34,6 +34,7 @@ class UnitTest < Test::Unit::TestCase
     assert_equal(true, u.del('testuser'))
   end
 
+  # Test to check if changing passwords is possible on users
   def test_chpass
     u = Users.new
     assert_equal(true, u.add('testuser', 'Testp4ssword123!'))
@@ -41,6 +42,12 @@ class UnitTest < Test::Unit::TestCase
     assert_equal(true, u.chpass('testuser', 'Testp4ssword123!', 'MyNewPassw0rd!'))
     assert_equal(false, u.login('testuser', 'Testp4ssword123!'))
     assert_equal(true, u.login('testuser', 'MyNewPassw0rd!'))
+  end
+
+  # Test to check if it's possible to add duplicate book entries to a book collection
+  def test_duplicate_entries_book_collection
+    u = Users.new
+    assert_equal(true, u.add('testuser', 'Testp4ssword123!'))
   end
 
   # Test to validate if the value_of method is functioning as intended
