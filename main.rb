@@ -121,7 +121,7 @@ class MyReadServer < Sinatra::Base
   end
 
   # Add book to book collection, need to be logged in as specified user
-  get '/u/thimoser/:name/add_book_to_collection/:collection_name/:book_id' do
+  get '/user/:name/add_book_to_collection/:collection_name/:book_id' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       users.add_book_to_collection(params[:name], params[:collection_name], params[:book_id])
     else
