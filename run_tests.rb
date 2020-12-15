@@ -44,10 +44,16 @@ class UnitTest < Test::Unit::TestCase
     assert_equal(true, u.login('testuser', 'MyNewPassw0rd!'))
   end
 
-  # Test to check if it's possible to add duplicate book entries to a book collection
-  def test_duplicate_entries_book_collection
+  # Test to check if book collections work and if it's possible to add duplicate book entries to a book collection
+  def test_book_collection
     u = Users.new
     assert_equal(true, u.add('testuser', 'Testp4ssword123!'))
+
+    assert_equal(true, u.add_collection('testuser', 'New collection', ['OL26412312M']))
+    assert_equal(false, u.add_book_to_collection('testuser', 'New collection', 'OL26412312M'))
+    assert_equal(true, u.add_book_to_collection('testuser', 'New collection', 'OL18009471W'))
+
+    assert_equal(true, u.del_collection('testuser', 'New collection'))
   end
 
   # Test to validate if the value_of method is functioning as intended
