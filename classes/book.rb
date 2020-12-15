@@ -1,27 +1,20 @@
 # frozen_string_literal: true
 
 require 'httparty'
-require_relative 'helper.rb'
+
+require_relative 'helper'
 
 # Book object containing information about books
 class Book
   def set_goodreads_key
     goodreads_path = 'db/goodreads.json'
 
-    if File.exist?(goodreads_path)
-      return (JSON.parse(File.open(goodreads_path).read))['apikey']
-    end
+    return (JSON.parse(File.open(goodreads_path).read))['apikey'] if File.exist?(goodreads_path)
 
-    warn 'Goodreads key not found! Rating data will be empty.'
-    # puts 'Goodreads key not found! Please enter it below:'
-    # goodreads_key = gets.chomp
-    # Dir.mkdir('db') unless Dir.exist?('db')
-    # File.open(goodreads_path, 'w') { |f| f.write("{\"apikey\": \"#{goodreads_key}\"}") }
-    # goodreads_key
+    warn "Goodreads key not found! Rating not retrievable. Enter it in #{goodreads_path} as a JSON with value 'apikey'"
   end
 
   def get_rating(goodreads_key)
-    # 'curl -X GET -F 'key=<key>' -F 'isbns=0824985990' -F 'format=json' https://www.goodreads.com/book/review_counts.json'
     return '' if @isbn == '' || @isbn.nil?
 
     query = {
@@ -29,7 +22,6 @@ class Book
       'isbns': @isbn,
       'format': 'json'
     }
-    # 'No ISBNs specified.'
     reviews = HTTParty.get('https://www.goodreads.com/book/review_counts.json', query: query)
     goodreads_data = JSON.parse(reviews.to_s)
     value_of(goodreads_data['books'][0], 'average_rating').to_f
@@ -69,12 +61,13 @@ class Book
     author_data_var = author_data(work_data)
     @author = value_of(author_data_var, 'name')
     @author = value_of(work_data, 'by_statement') if @author == ''
+
     # remove /authors/ from /authors/<author_id>
     @author_id = value_of(author_data_var, 'key').delete('/authors/')
   end
 
   attr_reader :id, :title, :author_id, :author, :description, :subjects,
-    :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki, :rating, :isbn
+              :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki, :rating, :isbn
 
   def print_details
     puts "Id: #{@id}"

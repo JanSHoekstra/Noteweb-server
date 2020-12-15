@@ -3,12 +3,12 @@
 require 'json'
 require 'rufus-scheduler'
 require 'bcrypt'
-require_relative 'bookcollection.rb'
+
+require_relative 'bookcollection'
 
 # User class
 class Users
   def initialize
-    # Here we are initialising the variables.
     @users_path = 'db/users.json'
 j   # Create empty json in db directory if those do not exist yet
     Dir.mkdir('db') unless Dir.exist?('db')
@@ -36,6 +36,7 @@ j   # Create empty json in db directory if those do not exist yet
     end
   end
 
+  # Returns whether a user exists
   def exists?(name)
     @users.key?(name)
   end
@@ -96,8 +97,11 @@ j   # Create empty json in db directory if those do not exist yet
 
   def chname_collection(name, collection_name, new_collection_name)
     @users[name][1].each do |bc|
-      bc['name'] = new_collection_name if collection_name == bc['name']
+      next if collection_name != bc['name']
+
+      bc['name'] = new_collection_name
       @changed_since_last_write = true
+      return true
     end
   end
 
@@ -120,10 +124,11 @@ j   # Create empty json in db directory if those do not exist yet
 
   def del_book_from_collection(name, collection_name, book_id)
     @users[name][1].each do |bc|
-      if collection_name == bc['name']
-        bc['books'].delete(book_id.to_s)
-        @changed_since_last_write = true
-      end
+      next if collection_name != bc['name']
+
+      bc['books'].delete(book_id.to_s)
+      @changed_since_last_write = true
+      return true
     end
   end
 
