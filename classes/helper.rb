@@ -22,14 +22,21 @@ def recommend(author = '', subject = '')
   uri_to_json('https://openlibrary.org/search.json', query)
 end
 
-def search(search = '')
+def search(search = '', limit = 10)
   query = {
-    'q': search
+    'q': search,
+    'limit': limit
   }
   search_data = uri_to_json('https://openlibrary.org/search.json', query)
-  return (value_of(search_data['docs'][0], 'key')).delete!('/works/') if search_data && search_data['docs']
+
+  book_ids = []
+  search_data['docs']&.each_with_index do |result, i|
+    book_ids.push(value_of(result, 'key').delete('/works/'))
+    return book_ids if i >= limit
+  end
+  return book_ids
 end
 
 def log(msg)
-  puts "[#{Time.now.to_s}] MANUAL LOG #{msg.to_s}"
+  puts "[#{Time.now}] MANUAL LOG #{msg}"
 end

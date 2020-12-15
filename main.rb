@@ -121,7 +121,7 @@ class MyReadServer < Sinatra::Base
   end
 
   # Add book to book collection, need to be logged in as specified user
-  get '/user/:name/add_book_to_collection/:collection_name/:book_id' do
+  get '/u/thimoser/:name/add_book_to_collection/:collection_name/:book_id' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       users.add_book_to_collection(params[:name], params[:collection_name], params[:book_id])
     else
@@ -183,11 +183,20 @@ class MyReadServer < Sinatra::Base
   # Search for books, need to be logged in
   get '/search_book/:search' do
     if session[:id]
-      book_id = search(params[:search])
-      halt 500 unless book_id
+      book_ids = search(params[:search])
+      halt 500 unless book_ids
+      threads = Array.new(book_ids.length)
+      books_to_return = Array.new(book_ids.length)
 
-      books[book_id] ||= Book.new(book_id)
-      json books[book_id].to_hash
+      book_ids.each_with_index do |book_id, index|
+        threads[index] = Thread.new {
+          books[book_id] ||= Book.new(book_id)
+          books_to_return[index] = books[book_id].to_hash
+        }
+      end
+      threads.map(&:join)
+
+      json books_to_return
     else
       halt 401
     end
