@@ -26,7 +26,8 @@ def search(search = '')
   query = {
     'q': search
   }
-  uri_to_json('https://openlibrary.org/search.json', query)
+  search_data = uri_to_json('https://openlibrary.org/search.json', query)
+  return (value_of(search_data['docs'][0], 'key')).delete!('/works/') if search_data && search_data['docs']
 end
 
 def log(msg)
