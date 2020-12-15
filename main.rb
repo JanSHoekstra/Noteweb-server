@@ -8,12 +8,12 @@ require 'webrick/https'
 require 'openssl'
 require 'rack/throttle'
 require 'rack/protection'
-require 'encrypted_cookie'
+require 'rack/session/encrypted_cookie'
 require 'securerandom'
 
-require_relative 'classes/users.rb'
-require_relative 'classes/book.rb'
-require_relative 'classes/helper.rb'
+require_relative 'classes/users'
+require_relative 'classes/book'
+require_relative 'classes/helper'
 
 webrick_options = {
   Host: '0.0.0.0',
@@ -49,13 +49,15 @@ class MyReadServer < Sinatra::Base
   configure :development, :production do
     use Rack::Throttle::Rules, rules: rules, ip_whitelist: ip_whitelist, time_window: :hour
     use Rack::Protection
-    use Rack::Session::EncryptedCookie, secret: SecureRandom.hex(32)
+    #use Rack::Session::EncryptedCookie, secret: 'secret_key_base', salt: 'MyReadServer'
   end
 
-  # set :environment, :production
+  #set :environment, :production
 
   # Enable Sinatra session storage, sessions are reset after 1800 seconds (30 min)
   enable :sessions
+  set :sessions, :key_size => 32, :salt => SecureRandom.hex(32), :signed_salt => SecureRandom.hex(32)
+set :session_store, Rack::Session::EncryptedCookie
   set :sessions, :expire_after => 1800
   set force_ssl: true
 
