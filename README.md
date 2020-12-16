@@ -43,4 +43,4 @@ Run `ruby main.rb` in the repository directory. Access it on `127.0.0.1:2048`.
 Run `ruby run_tests.rb` in the repository directory.
 
 ## Running the fuzzer
-Run `ruby fuzzer/fuzzaday.rb` in the repository directory.
+Run `ruby fuzzer/fuzzaday.rb` in the repository directory. Make sure to start up the server itself for this one.
