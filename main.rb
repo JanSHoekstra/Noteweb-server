@@ -211,8 +211,8 @@ class MyReadServer < Sinatra::Base
   # Get book information via id, need to be logged in
   get '/book/:book' do
     if session[:id]
-      books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
-      json books[params[:book]].to_hash
+      books[params[:book]] ||= [Book.new(params[:book]), Time.now] if params.key?(:book)
+      json books[params[:book]][0].to_hash
     else
       halt 401
     end
@@ -221,8 +221,8 @@ class MyReadServer < Sinatra::Base
   # Get data entry from book, need to be logged in
   get '/book/:book/:param' do
     if session[:id]
-      books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
-      b = books[params[:book]]
+      books[params[:book]] ||= [Book.new(params[:book]), Time.now] if params.key?(:book)
+      b = books[params[:book]][0]
       b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
     else
       halt 401
