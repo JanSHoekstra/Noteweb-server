@@ -2,7 +2,7 @@
 This is the server used for communication with the reading app that is built [here](https://www.github.com/tr4wzified/socialreadingapp).
 
 ## Installation
-Requires the following packages:
+The server requires the following packages:
 - `sinatra`
 - `sinatra-json`
 - `sinatra-contrib`
@@ -19,6 +19,10 @@ Requires the following packages:
 
 When on Windows:
 - `tzinfo-data`
+
+If you want to run the fuzzer, it requires:
+- `faraday`
+- `faraday-cookie_jar`
 
 Install with `gem install <package>`, assuming you have already installed Ruby (2.7.2+).
 
