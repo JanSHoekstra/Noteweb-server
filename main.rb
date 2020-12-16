@@ -16,7 +16,7 @@ require_relative 'classes/users'
 require_relative 'classes/book'
 require_relative 'classes/helper'
 
- webrick_options = {
+webrick_options = {
   Host: '0.0.0.0',
   Port: 2048,
   Logger: WEBrick::Log.new($stderr, WEBrick::Log::DEBUG),
@@ -36,7 +36,7 @@ class MyReadServer < Sinatra::Base
       exit
     end
     o.string '-l', '--limit', '(optional) specify the maximum hourly amount of POST requests allowed per user', default: 10
-    o.bool '-P', '--production', 'run the server in production mode', default: false
+    o.bool '-p', '--production', 'run the server in production mode', default: false
   end
 
   # Set up logging
@@ -227,9 +227,11 @@ class MyReadServer < Sinatra::Base
 
   # Get book information via id, need to be logged in
   get '/book/:book' do
+    halt 400 if !params.key(:book)
     if session[:id]
-      books[params[:book]] ||= [Book.new(params[:book]), Time.now] if params.key?(:book)
-      json books[params[:book]][0].to_hash
+      # Use book cache, refresh cache if the current book cache is older than 24 hours (86400s)
+      books[params[:book]] = [Book.new(params[:book]), Time.now] if books[params[:book]].nil? || (Time.now - books[params[:book]][1]) > 86400
+      json (books[params[:book]])[0].to_hash
     else
       halt 401
     end
