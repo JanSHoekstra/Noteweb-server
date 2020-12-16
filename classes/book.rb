@@ -43,27 +43,40 @@ class Book
 
   def initialize(openlibrary_id)
     # Raw data
-    work_data = uri_to_json("https://openlibrary.org/works/#{openlibrary_id}.json")
-    book_data = uri_to_json("https://openlibrary.org/books/#{openlibrary_id}.json")
+    work_thread = Thread.new {
+      work_data = uri_to_json("https://openlibrary.org/works/#{openlibrary_id}.json")
+      @title = value_of(work_data, 'title')
+      @description = value_of(work_data['description'], 'value')
+      @publish_date = value_of(work_data, 'publish_date')
+      @amazon_id = value_of(value_of(work_data, 'identifiers'), 'amazon').to_s.delete '["]'
+      @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{amazon_id}"
+
+      author_data_var = author_data(work_data)
+      @author = value_of(author_data_var, 'name')
+      @author = value_of(work_data, 'by_statement') if @author == ''
+
+      # remove /authors/ from /authors/<author_id>
+      @author_id = value_of(author_data_var, 'key').delete('/authors/')
+    }
+
+    books_thread = Thread.new {
+      wikipedia_thread1 = Thread.new {
+        @author_wiki = get_wiki(@author)
+      }
+      wikipedia_thread2 = Thread.new {
+        @book_wiki = get_wiki(@title)
+      }
+      book_data = uri_to_json("https://openlibrary.org/books/#{openlibrary_id}.json")
+      @subjects = value_of(book_data, 'subjects')
+      @isbn = value_of(value_of(book_data, 'isbn_10'), 0)
+      @rating = get_rating(set_goodreads_key)
+      wikipedia_thread1.join
+      wikipedia_thread2.join
+    }
     @id = openlibrary_id
-    @title = value_of(work_data, 'title')
-    @description = value_of(work_data['description'], 'value')
-    @subjects = value_of(book_data, 'subjects')
-    @publish_date = value_of(work_data, 'publish_date')
-    @amazon_id = value_of(value_of(work_data, 'identifiers'), 'amazon').to_s.delete '["]'
-    @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{amazon_id}"
-    @author_wiki = get_wiki(@author)
-    @book_wiki = get_wiki(@title)
-    @isbn = value_of(value_of(book_data, 'isbn_10'), 0)
-    @rating = get_rating(set_goodreads_key)
 
-    # Getting author depends on the way it's stored in openlibrary
-    author_data_var = author_data(work_data)
-    @author = value_of(author_data_var, 'name')
-    @author = value_of(work_data, 'by_statement') if @author == ''
-
-    # remove /authors/ from /authors/<author_id>
-    @author_id = value_of(author_data_var, 'key').delete('/authors/')
+    work_thread.join
+    books_thread.join
   end
 
   attr_reader :id, :title, :author_id, :author, :description, :subjects,

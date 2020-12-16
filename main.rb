@@ -200,7 +200,24 @@ class MyReadServer < Sinatra::Base
 
   # Search for books, need to be logged in
   get '/search_book/:search' do
-    session[:id] ? json(search(params[:search])) : halt(401)
+    if session[:id]
+      book_ids = search(params[:search])
+      halt 500 unless book_ids
+      threads = Array.new(book_ids.length)
+      books_to_return = Array.new(book_ids.length)
+
+      book_ids.each_with_index do |book_id, index|
+        threads[index] = Thread.new {
+          books[book_id] ||= Book.new(book_id)
+          books_to_return[index] = books[book_id].to_hash
+        }
+      end
+      threads.map(&:join)
+
+      json books_to_return
+    else
+      halt 401
+    end
   end
 
   # Recommend a book based on author and subject(s - can be an array), need to be logged in
