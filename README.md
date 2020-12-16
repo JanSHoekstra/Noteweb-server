@@ -18,16 +18,16 @@ The server requires the following packages:
 - `rack_encrypted_cookie`
 - `slop`
 
-### Requirements - Server - Windows-only
+### Windows-only
 Windows has trouble with timezones when using rufus-scheduler, thus you should install the following package:
 - `tzinfo-data`
 
-### Requirements - Fuzzer
+### Fuzzer
 If you want to run the fuzzer, it requires:
 - `faraday`
 - `faraday-cookie_jar`
 
-### Requirements - Unit Tests
+### Unit Tests
 You will need the unit testing package if you want to run them.
 - `test-unit`
 
