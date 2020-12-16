@@ -10,12 +10,13 @@ require 'rack/throttle'
 require 'rack/protection'
 require 'rack/session/encrypted_cookie'
 require 'securerandom'
+require 'slop'
 
 require_relative 'classes/users'
 require_relative 'classes/book'
 require_relative 'classes/helper'
 
-webrick_options = {
+ webrick_options = {
   Host: '0.0.0.0',
   Port: 2048,
   Logger: WEBrick::Log.new($stderr, WEBrick::Log::DEBUG),
@@ -29,6 +30,14 @@ webrick_options = {
 
 # The server
 class MyReadServer < Sinatra::Base
+  @arguments = Slop.parse do |o|
+    o.on '-h', '--help' do
+      puts o
+      exit
+    end
+    o.string '-l', '--limit', '(optional) specify the maximum hourly amount of POST requests allowed per user', default: 10
+    o.bool '-P', '--production', 'run the server in production mode', default: false
+  end
 
   # Set up logging
   logging_path = 'db/server.log'
@@ -40,14 +49,22 @@ class MyReadServer < Sinatra::Base
 
   # Configure rate limiting - 10 POST requests an hour
   rules = [
-    { method: 'POST', limit: 10 }
+    { method: 'POST', limit: @arguments[:limit]}
     # { method: 'GET', limit: 10 },
   ]
   ip_whitelist = [
     '127.0.0.1',
     '0.0.0.0'
   ]
-  configure :development, :production do
+
+  set :environment, :production if @arguments.production?
+
+  configure :production do
+    use Rack::Throttle::Rules, rules: rules, time_window: :hour
+    use Rack::Protection
+  end
+
+  configure :development do
     use Rack::Throttle::Rules, rules: rules, ip_whitelist: ip_whitelist, time_window: :hour
     use Rack::Protection
   end
@@ -69,6 +86,7 @@ class MyReadServer < Sinatra::Base
 
   # Home
   get '/' do
+    ARGV[0]
     erb :index
   end
 
