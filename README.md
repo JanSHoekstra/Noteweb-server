@@ -16,6 +16,7 @@ Requires the following packages:
 - `rack-throttle`
 - `securerandom`
 - `rack_encrypted_cookie`
+- `slop`
 
 When on Windows:
 - `tzinfo-data`
