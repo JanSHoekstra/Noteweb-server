@@ -7,10 +7,13 @@ require 'webrick'
 require 'webrick/https'
 require 'openssl'
 require 'rack/throttle'
+require 'rack/protection'
+require 'rack/session/encrypted_cookie'
+require 'securerandom'
 
-require_relative 'classes/users.rb'
-require_relative 'classes/book.rb'
-require_relative 'classes/helper.rb'
+require_relative 'classes/users'
+require_relative 'classes/book'
+require_relative 'classes/helper'
 
 webrick_options = {
   Host: '0.0.0.0',
@@ -26,7 +29,8 @@ webrick_options = {
 
 # The server
 class MyReadServer < Sinatra::Base
-  # Set up logger
+
+  # Set up logging
   logging_path = 'db/server.log'
   Dir.mkdir('db') unless Dir.exist?('db')
   File.new(logging_path, 'w').close unless File.exist?(logging_path)
@@ -45,13 +49,15 @@ class MyReadServer < Sinatra::Base
   ]
   configure :development, :production do
     use Rack::Throttle::Rules, rules: rules, ip_whitelist: ip_whitelist, time_window: :hour
+    use Rack::Protection
   end
-
-  # set :environment, :production
 
   # Enable Sinatra session storage, sessions are reset after 1800 seconds (30 min)
   enable :sessions
-  set :sessions, :expire_after => 1800
+  set :sessions, key_size: 32, salt: SecureRandom.hex(32), signed_salt: SecureRandom.hex(32)
+  set :session_store, Rack::Session::EncryptedCookie
+  set :sessions, expire_after: 1800
+  set force_ssl: true
 
   users = Users.new
   users.write_every('3s')
@@ -59,18 +65,19 @@ class MyReadServer < Sinatra::Base
   # Books cache - store books in RAM when they have already been fetched
   books = {}
 
+  # API Endpoints
+
+  # Home
   get '/' do
     erb :index
   end
 
+  # Register
   post '/register' do
-    if params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass])
-      halt 201
-    else
-      halt 400
-    end
+    params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass]) ? status(201) : halt(400)
   end
 
+  # Login
   post '/login' do
     if params.key?(:name) && params.key?(:pass) && users.login(params[:name], params[:pass])
       session[:id] = params[:name]
@@ -80,27 +87,22 @@ class MyReadServer < Sinatra::Base
     end
   end
 
+  # Sign out
   get '/signout' do
     session.delete(:id)
     redirect '/'
   end
 
+  # Will return 200 if logged in as this user
   get '/user/:name' do
-    if users.exists?(params[:name]) && params[:name] == session[:id]
-      status 200
-    else
-      halt 401
-    end
+    users.exists?(params[:name]) && params[:name] == session[:id] ? status(200) : halt(401)
   end
 
+  # Change password for user, need to be logged in as specified user
   post '/user/:name/change_password' do
     if params.key?(:name) && params.key?(:old_pass) && params.key?(:new_pass)
       if params[:name] == session[:id]
-        if users.chpass(params[:name], params[:old_pass], params[:new_pass])
-          status 200
-        else
-          halt 400
-        end
+        users.chpass(params[:name], params[:old_pass], params[:new_pass]) ? status(200) : halt(400)
       else
         halt 401
       end
@@ -109,6 +111,7 @@ class MyReadServer < Sinatra::Base
     end
   end
 
+  # Get book collections from user, need to be logged in as specified user
   get '/user/:name/book_collections' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       json users.users[params[:name]][1]
@@ -117,6 +120,7 @@ class MyReadServer < Sinatra::Base
     end
   end
 
+  # Add book to book collection, need to be logged in as specified user
   get '/user/:name/add_book_to_collection/:collection_name/:book_id' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       users.add_book_to_collection(params[:name], params[:collection_name], params[:book_id])
@@ -125,6 +129,7 @@ class MyReadServer < Sinatra::Base
     end
   end
 
+  # Delete book from book collection, need to be logged in as specified user
   get '/user/:name/del_book_from_collection/:collection_name/:book_id' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       users.add_book_to_collection(params[:name], params[:collection_name], params[:book_id])
@@ -133,79 +138,59 @@ class MyReadServer < Sinatra::Base
     end
   end
 
+  # Create new book collection, need to be logged in as specified user
   get '/user/:name/add_book_collection/:collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
-      if users.add_collection(params[:name], params[:collection_name])
-        halt 201
-      else
-        halt 500
-      end
+      users.add_collection(params[:name], params[:collection_name]) ? status(201) : halt(500)
     else
       halt 401
     end
   end
 
+  # Create new book collection with books (separated by ;), need to be logged in as specified user
   get '/user/:name/add_book_collection/:collection_name/:book_ids' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       book_ids = params[:book_ids].to_s.split(';') unless params[:book_ids].nil?
-      if users.add_collection(params[:name], params[:collection_name], book_ids)
-        halt 201
-      else
-        halt 500
-      end
+      users.add_collection(params[:name], params[:collection_name], book_ids) ? status(201) : halt(500)
     else
       halt 401
     end
   end
 
+  # Delete book collection, need to be logged in as specified user
   get '/user/:name/del_book_collection/:collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
-      if users.del_collection(params[:name], params[:collection_name])
-        status 200
-      else
-        halt 500
-      end
+      users.del_collection(params[:name], params[:collection_name]) ? status(200) : halt(500)
     else
       halt 401
     end
   end
 
+  # Rename book collection, need to be logged in as specified user
   get '/user/:name/chname_book_collection/:collection_name/:new_collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
-      if users.chname_collection(params[:name], params[:collection_name], params[:new_collection_name])
-        status 200
-      else
-        halt 500
-      end
+      users.chname_collection(params[:name], params[:collection_name], params[:new_collection_name]) ? status(200) : halt(500)
     else
       halt 401
     end
   end
 
+  # Get book collection by name from user, need to be logged in as specified user
   get '/user/:name/book_collections/:book_collection' do
-    if session[:id]
-      json users.get_collection(params[:name], params[:book_collection])
-    else
-      halt 401
-    end
+    session[:id] && params[:name] == session[:id] ? json(users.get_collection(params[:name], params[:book_collection])) : halt(401)
   end
 
+  # Search for books, need to be logged in
   get '/search_book/:search' do
-    if session[:id]
-      json search(params[:search])
-    else
-      halt 401
-    end
+    session[:id] ? json(search(params[:search])) : halt(401)
   end
 
+  # Recommend a book based on author and subject(s - can be an array), need to be logged in
   get '/recommend_book/:author/:subject' do
-    if session[:id]
-      json recommend(params[:author], params[:subject])
-    else
-      halt 401
-    end
+    session[:id] ? json(recommend(params[:author], params[:subject])) : halt(401)
   end
 
+  # Get book information via id, need to be logged in
   get '/book/:book' do
     if session[:id]
       books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)
@@ -215,6 +200,7 @@ class MyReadServer < Sinatra::Base
     end
   end
 
+  # Get data entry from book, need to be logged in
   get '/book/:book/:param' do
     if session[:id]
       books[params[:book]] ||= Book.new(params[:book]) if params.key?(:book)

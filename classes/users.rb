@@ -3,12 +3,12 @@
 require 'json'
 require 'rufus-scheduler'
 require 'bcrypt'
-require_relative 'bookcollection.rb'
+
+require_relative 'bookcollection'
 
 # User class
 class Users
   def initialize
-    # Here we are initialising the variables.
     @users_path = 'db/users.json'
 j   # Create empty json in db directory if those do not exist yet
     Dir.mkdir('db') unless Dir.exist?('db')
@@ -36,6 +36,7 @@ j   # Create empty json in db directory if those do not exist yet
     end
   end
 
+  # Returns whether a user exists
   def exists?(name)
     @users.key?(name)
   end
@@ -79,24 +80,28 @@ j   # Create empty json in db directory if those do not exist yet
     @users[name][1].each do |bc|
       return false if bc['name'] == collection_name
     end
-    bc = BookCollection.new(collection_name, books.uniq)
+    bc = BookCollection.new(collection_name, books)
     @users[name][1].push(bc.to_hash)
     @changed_since_last_write = true
   end
 
   def del_collection(name, collection_name)
     @users[name][1].each_with_index do |bc, i|
-      if bc['name'] == collection_name
-        @users[name][1].delete_at(i)
-        @changed_since_last_write = true
-      end
+      next if bc['name'] != collection_name
+
+      @users[name][1].delete_at(i)
+      @changed_since_last_write = true
+      return true
     end
   end
 
   def chname_collection(name, collection_name, new_collection_name)
     @users[name][1].each do |bc|
-      bc['name'] = new_collection_name if collection_name == bc['name']
+      next if collection_name != bc['name']
+
+      bc['name'] = new_collection_name
       @changed_since_last_write = true
+      return true
     end
   end
 
@@ -108,21 +113,22 @@ j   # Create empty json in db directory if those do not exist yet
 
   def add_book_to_collection(name, collection_name, book_id)
     @users[name][1].each do |bc|
-      if collection_name == bc['name']
-        return false if bc['books'].include?(book_id)
+      next if collection_name != bc['name']
+      return false if bc['books'].include?(book_id)
 
-        bc['books'].push(book_id.to_s)
-        @changed_since_last_write = true
-      end
+      bc['books'].push(book_id.to_s)
+      @changed_since_last_write = true
+      return true
     end
   end
 
   def del_book_from_collection(name, collection_name, book_id)
     @users[name][1].each do |bc|
-      if collection_name == bc['name']
-        bc['books'].delete(book_id.to_s)
-        @changed_since_last_write = true
-      end
+      next if collection_name != bc['name']
+
+      bc['books'].delete(book_id.to_s)
+      @changed_since_last_write = true
+      return true
     end
   end
 
