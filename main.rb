@@ -227,7 +227,7 @@ class MyReadServer < Sinatra::Base
 
   # Get book information via id, need to be logged in
   get '/book/:book' do
-    halt 400 if !params.key(:book)
+    halt 400 if !params.key?(:book)
     if session[:id]
       # Use book cache, refresh cache if the current book cache is older than 24 hours (86400s)
       books[params[:book]] = [Book.new(params[:book]), Time.now] if books[params[:book]].nil? || (Time.now - books[params[:book]][1]) > 86400
