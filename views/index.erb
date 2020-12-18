@@ -51,7 +51,8 @@ input[type=submit] {
 			<li>Minimum 1 English uppercase + lowercase letter</li>
 			<li>Minimum 1 digit</li>
 			<li>Minimum 1 of these special characters - @$!%*?&</li>
-			<li>Must not include username</li>
+      <li>Must not include username</li>
+      <li>Username may only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen.</li>
 		</ul>
 		<form method="post" action="/register">
 			<input placeholder='Username' id="name" name="name" type="text"></input>
@@ -63,9 +64,9 @@ input[type=submit] {
 		<video width='200px' height='auto' autoplay muted loop>
 			<source src="https://media.giphy.com/media/Nx0rz3jtxtEre/giphy.mp4" type="video/mp4">
 		</video>
-		<p>Hello there, <b id="username"><%= session[:id] %></b>!</p>
-		<a href="/user/<%= session[:id] %>">My profile</a><br>
-		<a href="/user/<%= session[:id] %>/book_collections">My book collections</a>
+		<p>Hello there, <b id="username"><%%= session[:id] %></b>!</p>
+		<a href="/user/<%%= session[:id] %>">My profile</a><br>
+		<a href="/user/<%%= session[:id] %>/book_collections">My book collections</a>
 		<h2>Sign out</h2>
 		<form method="get" action="/signout">
 			<input type="submit" value="Sign out"></input>
@@ -77,7 +78,7 @@ input[type=submit] {
 				return true;
 			}
 			function ChangePassword() {
-				document.changepassword.action = '/user/' + '<%= session[:id] %>' + '/change_password';
+				document.changepassword.action = '/user/' + '<%%= session[:id] %>' + '/change_password';
 				return true;
 			}
 		</script>

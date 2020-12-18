@@ -46,8 +46,9 @@ j   # Create empty json in db directory if those do not exist yet
   # Minimum 1 digit
   # Minimum 1 of these special characters - @$!%*?&
   # Must not include username
+  # Username may only contain alphanumeric characters or single hyphens, and cannot begin or end with a hyphen.
   def meets_requirements?(name, pass)
-    pass.match?(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{9,64}$/) && !pass.include?(name)
+    name.match?(/^([a-z\d]+-)*[a-z\d]+$/i) && pass.match?(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{9,64}$/) && !pass.include?(name)
   end
 
   # Adds a user with name and pass (is encrypted) to the DB
