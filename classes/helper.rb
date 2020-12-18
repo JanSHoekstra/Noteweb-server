@@ -3,6 +3,7 @@
 require 'httparty'
 require 'json'
 
+
 def value_of(array, value)
   !array || array[value].nil? ? '' : array[value]
 end
@@ -35,6 +36,17 @@ def search(search = '', limit = 10)
     return book_ids if i >= limit
   end
   return book_ids
+end
+
+$goodreads_key = nil
+def set_goodreads_key
+  return $goodreads_key unless $goodreads_key.nil?
+
+  goodreads_path = 'db/goodreads.json'
+  $goodreads_key = (JSON.parse(File.open(goodreads_path).read))['apikey'] if File.exist?(goodreads_path)
+  return $goodreads_key unless $goodreads_key.nil? || $goodreads_key == ''
+
+  warn "Goodreads key not found! Rating not retrievable. Enter it in #{goodreads_path} as a JSON with value 'apikey'"
 end
 
 def log(msg)

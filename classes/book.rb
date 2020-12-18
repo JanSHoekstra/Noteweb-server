@@ -6,13 +6,6 @@ require_relative 'helper'
 
 # Book object containing information about books
 class Book
-  def set_goodreads_key
-    goodreads_path = 'db/goodreads.json'
-
-    return (JSON.parse(File.open(goodreads_path).read))['apikey'] if File.exist?(goodreads_path)
-
-    warn "Goodreads key not found! Rating not retrievable. Enter it in #{goodreads_path} as a JSON with value 'apikey'"
-  end
 
   def get_rating(goodreads_key)
     return '' if @isbn == '' || @isbn.nil?
@@ -35,8 +28,8 @@ class Book
   def author_data(work_data)
     authors = value_of(work_data, 'authors')
     if authors && authors[0] && (authors[0]['key'] || authors[0]['author']['key'])
-      author_data = uri_to_json("https://openlibrary.org/authors/#{authors[0]['key']}.json")
-      author_data || uri_to_json("https://openlibrary.org/authors/#{authors[0]['author']['key']}.json")
+      author_data = uri_to_json("https://openlibrary.org/#{authors[0]['key']}.json")
+      author_data ||= uri_to_json("https://openlibrary.org/#{authors[0]['author']['key']}.json")
     else ''
     end
   end
@@ -57,21 +50,26 @@ class Book
 
       # remove /authors/ from /authors/<author_id>
       @author_id = value_of(author_data_var, 'key').delete('/authors/')
+      @author_wiki = get_wiki(@author)
+      @book_wiki = get_wiki(@title)
+      @cover_id = value_of(value_of(work_data, 'covers'), 0)
+      log("COVER ID! #{@cover_id}")
+      if @cover_id.nil? || @cover_id == ''
+        @cover_img_small = ''
+        @cover_img_medium = ''
+        @cover_img_large = ''
+      else
+        @cover_img_small = "https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg"
+        @cover_img_medium = "https://covers.openlibrary.org/b/id/#{@cover_id}-M.jpg"
+        @cover_img_large = "https://covers.openlibrary.org/b/id/#{@cover_id}-L.jpg"
+      end
     }
 
     books_thread = Thread.new {
-      wikipedia_thread1 = Thread.new {
-        @author_wiki = get_wiki(@author)
-      }
-      wikipedia_thread2 = Thread.new {
-        @book_wiki = get_wiki(@title)
-      }
       book_data = uri_to_json("https://openlibrary.org/books/#{openlibrary_id}.json")
       @subjects = value_of(book_data, 'subjects')
       @isbn = value_of(value_of(book_data, 'isbn_10'), 0)
       @rating = get_rating(set_goodreads_key)
-      wikipedia_thread1.join
-      wikipedia_thread2.join
     }
     @id = openlibrary_id
 
@@ -80,7 +78,8 @@ class Book
   end
 
   attr_reader :id, :title, :author_id, :author, :description, :subjects,
-              :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki, :rating, :isbn
+              :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki, :rating, :isbn,
+              :cover_id, :cover_img_small, :cover_img_medium, :cover_img_large
 
   def print_details
     puts "Id: #{@id}"
