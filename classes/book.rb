@@ -54,7 +54,7 @@ class Book
       @book_wiki = get_wiki(@title)
       @cover_id = value_of(value_of(work_data, 'covers'), 0)
       log("COVER ID! #{@cover_id}")
-      if @cover_id.nil? || @cover_id == ''
+      if @cover_id == ''
         @cover_img_small = ''
         @cover_img_medium = ''
         @cover_img_large = ''
@@ -63,12 +63,24 @@ class Book
         @cover_img_medium = "https://covers.openlibrary.org/b/id/#{@cover_id}-M.jpg"
         @cover_img_large = "https://covers.openlibrary.org/b/id/#{@cover_id}-L.jpg"
       end
+
+      if @author_id == ''
+        @author_img_small = ''
+        @author_img_medium = ''
+        @author_img_large = ''
+      else
+        @author_img_small = "https://covers.openlibrary.org/b/olid/#{@author_id}-S.jpg"
+        @author_img_medium = "https://covers.openlibrary.org/b/olid/#{@author_id}-M.jpg"
+        @author_img_large = "https://covers.openlibrary.org/b/olid/#{@author_id}-L.jpg"
+      end
+
     }
 
     books_thread = Thread.new {
       book_data = uri_to_json("https://openlibrary.org/books/#{openlibrary_id}.json")
       @subjects = value_of(book_data, 'subjects')
       @isbn = value_of(value_of(book_data, 'isbn_10'), 0)
+      @number_of_pages = value_of(value_of(book_data, 'notes'), 'number_of_pages')
       @rating = get_rating(set_goodreads_key)
     }
     @id = openlibrary_id
@@ -79,7 +91,8 @@ class Book
 
   attr_reader :id, :title, :author_id, :author, :description, :subjects,
               :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki, :rating, :isbn,
-              :cover_id, :cover_img_small, :cover_img_medium, :cover_img_large
+              :cover_id, :cover_img_small, :cover_img_medium, :cover_img_large, :author_img_small,
+              :author_img_medium, :author_img_large, :number_of_pages
 
   def print_details
     puts "Id: #{@id}"
