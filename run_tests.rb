@@ -93,6 +93,6 @@ class UnitTest < Test::Unit::TestCase
 
     b = Book.new('OL8141930M')
     assert_equal(true, b.isbn.to_s == '0786806931')
-    assert_equal(true, b.rating > 3.5 && b.rating < 5) if b.set_goodreads_key
+    assert_equal(true, b.rating > 3.5 && b.rating < 5) if set_goodreads_key
   end
 end
