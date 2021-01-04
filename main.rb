@@ -30,6 +30,8 @@ webrick_options = {
 
 # The server
 class MyReadServer < Sinatra::Base
+
+  # Accept command-line arguments for easy configuration
   @arguments = Slop.parse do |o|
     o.on '-h', '--help' do
       puts o
@@ -47,42 +49,51 @@ class MyReadServer < Sinatra::Base
   $stdout.sync = true
   $stderr.reopen($stdout)
 
-  # Configure rate limiting - 10 POST requests an hour
+  # Configure rate limiting
   rules = [
     { method: 'POST', limit: @arguments[:limit]}
     # { method: 'GET', limit: 10 },
   ]
+
+  # IP Whitelist - only works when running server in development environment
   ip_whitelist = [
     '127.0.0.1',
     '0.0.0.0'
   ]
 
+  # Enable production environment when specified
   set :environment, :production if @arguments.production?
 
+  # Configure the following rules for production environment
   configure :production do
     use Rack::Throttle::Rules, rules: rules, time_window: :hour
     use Rack::Protection
   end
 
+  # Configure the following rules for production environment (IP Whitelist is on)
   configure :development do
     use Rack::Throttle::Rules, rules: rules, ip_whitelist: ip_whitelist, time_window: :hour
     use Rack::Protection
   end
 
-  # Enable Sinatra session storage, sessions are reset after 1800 seconds (30 min)
+  # Enable (encrypted) Sinatra session storage, sessions are reset after 1800 seconds (30 min)
   enable :sessions
   set :sessions, key_size: 32, salt: SecureRandom.hex(32), signed_salt: SecureRandom.hex(32)
   set :session_store, Rack::Session::EncryptedCookie
   set :sessions, expire_after: 1800
   set force_ssl: true
 
+  # Create a new database in memory for the users, sync them to file every three seconds
   users = Users.new
   users.write_every('3s')
 
-  # Books cache - store books in RAM when they have already been fetched
+  # Books cache - store books in RAM when they have already been fetched.
+  # Cache for a book is refreshed if it is requested 24 hours after creation of the cache for the specified book
   books = {}
 
+  # #############
   # API Endpoints
+  # #############
 
   # Home
   get '/' do
@@ -202,7 +213,7 @@ class MyReadServer < Sinatra::Base
   get '/search_book/:search' do
     if session[:id]
       book_ids = search(params[:search])
-      halt 500 unless book_ids
+      halt 400 unless book_ids
       threads = Array.new(book_ids.length)
       books_to_return = Array.new(book_ids.length)
 
@@ -248,22 +259,24 @@ class MyReadServer < Sinatra::Base
     end
   end
 
+  # ##############
+  # Error Handling
+  # ##############
+
+  # 201 - Created
   error 201 do
     erb :error, locals: { message: body[0], response_code: 201 }
   end
 
+  # 400 - Bad Request
   error 400 do
     erb :error, locals: { message: body[0], response_code: 400 }
   end
 
+  # 401 - Unauthorized
   error 401 do
     erb :error, locals: { message: body[0], response_code: 401 }
-  end
-
-  error 500 do
-    erb :error, locals: { message: body[0], response_code: 500 }
   end
 end
 
 Rack::Handler::WEBrick.run MyReadServer, webrick_options
-# vim: tabstop=2 shiftwidth=2 expandtab

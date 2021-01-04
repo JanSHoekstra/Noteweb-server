@@ -7,6 +7,7 @@ require_relative 'helper'
 # Book object containing information about books
 class Book
 
+  # Retrieve rating via Goodreads
   def get_rating(goodreads_key)
     return '' if @isbn == '' || @isbn.nil?
 
@@ -21,7 +22,7 @@ class Book
   end
 
   def get_wiki(search)
-    wiki_data = uri_to_json("https://en.wikipedia.org/w/api.php?action=opensearch&search=#{search}")
+    wiki_data = uri_to_json("https://en.wikipedia.org/w/api.php?action=opensearch&search=#{search.encode(Encoding.find('ASCII'), {:invalid => :replace, :undef => :replace, :replace => '', :universal_newline => true}).inspect}")
     value_of(value_of(wiki_data, 3), 0)
   end
 
