@@ -72,7 +72,8 @@ class UnitTest < Test::Unit::TestCase
     assert_equal(false, value_of(hash, 'ip').nil?)
   end
 
-  # Test to check if using the same password does not result in the same string of data being saved to the DB - this should not be the case as a random salt is added before encryption
+  # Test to check if using the same password does not result in the same string of data being saved to the DB.
+  # This should not be the case as a random salt is added before encryption.
   def test_salting_diff_same_pass
     u = Users.new
     assert_equal(true, u.add('testuser', 'Testp4ssword123!'))
