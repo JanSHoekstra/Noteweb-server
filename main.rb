@@ -249,23 +249,19 @@ class MyReadServer < Sinatra::Base
   end
 
   error 201 do
-    @response_code = 201
-    erb :error, locals: { message: body[0] }
+    erb :error, locals: { message: body[0], response_code: 201 }
   end
 
   error 400 do
-    @response_code = 400
-    erb :error, locals: { message: body[0] }
+    erb :error, locals: { message: body[0], response_code: 400 }
   end
 
   error 401 do
-    @response_code = 401
-    erb :error, locals: { message: body[0] }
+    erb :error, locals: { message: body[0], response_code: 401 }
   end
 
   error 500 do
-    @response_code = 500
-    erb :error, locals: { message: body[0] }
+    erb :error, locals: { message: body[0], response_code: 500 }
   end
 end
 
