@@ -1,3 +1,4 @@
+<% require 'cgi' %>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -64,9 +65,9 @@ input[type=submit] {
 		<video width='200px' height='auto' autoplay muted loop>
 			<source src="https://media.giphy.com/media/Nx0rz3jtxtEre/giphy.mp4" type="video/mp4">
 		</video>
-		<p>Hello there, <b id="username"><%%= session[:id] %></b>!</p>
-		<a href="/user/<%%= session[:id] %>">My profile</a><br>
-		<a href="/user/<%%= session[:id] %>/book_collections">My book collections</a>
+		<p>Hello there, <b id="username"><%= CGI.escapeHTML(session[:id]) %></b>!</p>
+		<a href="/user/<%= CGI.escapeHTML(session[:id]) %>">My profile</a><br>
+		<a href="/user/<%= CGI.escapeHTML(session[:id]) %>/book_collections">My book collections</a>
 		<h2>Sign out</h2>
 		<form method="get" action="/signout">
 			<input type="submit" value="Sign out"></input>
@@ -78,7 +79,7 @@ input[type=submit] {
 				return true;
 			}
 			function ChangePassword() {
-				document.changepassword.action = '/user/' + '<%%= session[:id] %>' + '/change_password';
+				document.changepassword.action = '/user/' + '<%= CGI.escapeHTML(session[:id]) %>' + '/change_password';
 				return true;
 			}
 		</script>
