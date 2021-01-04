@@ -33,7 +33,9 @@ You will need the unit testing package if you want to run them.
 - `test-unit`
 
 ## Installation
-Install the above packages with `gem install <package>`, assuming you have already installed Ruby (2.5.5+).
+Run`bundle install` in the repo.
+
+Alternatively install the above packages using `gem install <package>`, assuming you have already installed Ruby (2.5.5+).
 
 Download the repository (or clone it if you have Git: `git clone https://www.github.com/tr4wzified/SocialReadingAppServer`).
 
