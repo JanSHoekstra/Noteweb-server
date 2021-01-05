@@ -9,7 +9,7 @@ class Book
 
   # Retrieve rating via Goodreads
   def get_rating(goodreads_key)
-    return '' if @isbn == '' || @isbn.nil?
+    return '' if @isbn == '' || @isbn.nil? || goodreads_key == ''
 
     query = {
       'key': goodreads_key,
@@ -38,7 +38,6 @@ class Book
 
   def populate_work_data(openlibrary_id)
     work_data = uri_to_json("https://openlibrary.org/works/#{openlibrary_id}.json")
-    populate_author_data(work_data)
     @title = value_of(work_data, 'title')
     @description = value_of(work_data['description'], 'value')
     @publish_date = value_of(work_data, 'publish_date')
