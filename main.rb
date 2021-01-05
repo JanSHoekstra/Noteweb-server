@@ -98,7 +98,6 @@ class MyReadServer < Sinatra::Base
 
   # Home
   get '/' do
-    ARGV[0]
     erb :index
   end
 
@@ -171,7 +170,7 @@ class MyReadServer < Sinatra::Base
   # Create new book collection, need to be logged in as specified user
   get '/user/:name/add_book_collection/:collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
-      users.add_collection(params[:name], params[:collection_name]) ? status(201) : halt(500)
+      users.add_collection(params[:name], params[:collection_name]) ? status(201) : halt(400)
     else
       halt 401
     end
@@ -181,7 +180,7 @@ class MyReadServer < Sinatra::Base
   get '/user/:name/add_book_collection/:collection_name/:book_ids' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       book_ids = params[:book_ids].to_s.split(';') unless params[:book_ids].nil?
-      users.add_collection(params[:name], params[:collection_name], book_ids) ? status(201) : halt(500)
+      users.add_collection(params[:name], params[:collection_name], book_ids) ? status(201) : halt(400)
     else
       halt 401
     end
@@ -190,7 +189,7 @@ class MyReadServer < Sinatra::Base
   # Delete book collection, need to be logged in as specified user
   get '/user/:name/del_book_collection/:collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
-      users.del_collection(params[:name], params[:collection_name]) ? status(200) : halt(500)
+      users.del_collection(params[:name], params[:collection_name]) ? status(200) : halt(400)
     else
       halt 401
     end
@@ -199,7 +198,7 @@ class MyReadServer < Sinatra::Base
   # Rename book collection, need to be logged in as specified user
   get '/user/:name/chname_book_collection/:collection_name/:new_collection_name' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
-      users.chname_collection(params[:name], params[:collection_name], params[:new_collection_name]) ? status(200) : halt(500)
+      users.chname_collection(params[:name], params[:collection_name], params[:new_collection_name]) ? status(200) : halt(400)
     else
       halt 401
     end
@@ -214,7 +213,7 @@ class MyReadServer < Sinatra::Base
   get '/search_book/:search' do
     if session[:id]
       book_ids = search(params[:search])
-      halt 400 unless book_ids
+      halt 400 if !book_ids
 
       # Launch a thread per Book ID to retrieve details about this book, results in much faster execution
       books_to_return = Parallel.map(book_ids) do |book_id|

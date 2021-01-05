@@ -87,9 +87,8 @@ class Book
     end
   end
   def initialize(openlibrary_id)
-    t1 = Thread.new { populate_book_data(openlibrary_id) }
+    populate_book_data(openlibrary_id)
     populate_author_data(populate_work_data(openlibrary_id))
-    t1.join
   end
 
   attr_reader :id, :title, :author_id, :author, :description, :subjects,
