@@ -215,20 +215,14 @@ class MyReadServer < Sinatra::Base
     if session[:id]
       book_ids = search(params[:search])
       halt 400 unless book_ids
-      # books_to_return = Array.new(book_ids.length)
 
       # Launch a thread per Book ID to retrieve details about this book, results in much faster execution
-      j = Parallel.map(book_ids){|book_id|
+      books_to_return = Parallel.map(book_ids) do |book_id|
         books[book_id] ||= Book.new(book_id)
         books[book_id].to_hash
-        # log("Titel is #{books[book_id].title} en nummer is #{index}")
-      }
-      
-      p j
-      json j
+      end
 
-      # p books_to_return
-      # json books_to_return
+      json books_to_return
     else
       halt 401
     end
