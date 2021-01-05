@@ -18,6 +18,7 @@ The server requires the following packages:
 - `rack_encrypted_cookie`
 - `slop`
 - `cgi`
+- `parallel`
 
 ### Windows-only
 Windows has trouble with timezones when using rufus-scheduler, thus you should install the following package:
