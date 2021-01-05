@@ -11,6 +11,7 @@ require 'rack/protection'
 require 'rack/session/encrypted_cookie'
 require 'securerandom'
 require 'slop'
+require 'parallel'
 
 require_relative 'classes/users'
 require_relative 'classes/book'
@@ -214,17 +215,16 @@ class MyReadServer < Sinatra::Base
     if session[:id]
       book_ids = search(params[:search])
       halt 400 unless book_ids
-      threads = Array.new(book_ids.length)
       books_to_return = Array.new(book_ids.length)
 
-      book_ids.each_with_index do |book_id, index|
-        threads[index] = Thread.new {
-          books[book_id] ||= Book.new(book_id)
-          books_to_return[index] = books[book_id].to_hash
-        }
+      # Launch a thread per Book ID to retrieve details about this book, results in much faster execution
+      Parallel.map_with_index(book_ids) do |book_id, index|
+        books[book_id] ||= Book.new(book_id)
+        books_to_return[index] = books[book_id].to_hash
+        log("Titel is #{books[book_id].title} en nummer is #{index}")
       end
-      threads.map(&:join)
 
+      p books_to_return
       json books_to_return
     else
       halt 401
