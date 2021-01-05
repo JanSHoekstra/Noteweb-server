@@ -28,6 +28,6 @@ jobs:
       with:
         ruby-version: 2.7.2
     - name: Install dependencies
-      run: gem install sinatra sinatra-json sinatra-contrib openssl webrick bcrypt rufus-scheduler httparty addressable test-unit
+      run: bundle install
     - name: Run tests
       run: ruby ./run_tests.rb
