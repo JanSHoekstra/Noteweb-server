@@ -9,7 +9,7 @@ class Book
 
   # Retrieve rating via Goodreads
   def get_rating(goodreads_key)
-    return '' if @isbn == '' || @isbn.nil?
+    return '' if @isbn == '' || @isbn.nil? || goodreads_key == ''
 
     query = {
       'key': goodreads_key,
@@ -22,6 +22,7 @@ class Book
   end
 
   def get_wiki(search)
+    return '' if search.nil? || search == ''
     wiki_data = uri_to_json("https://en.wikipedia.org/w/api.php?action=opensearch&search=#{search.encode(Encoding.find('ASCII'), {:invalid => :replace, :undef => :replace, :replace => '', :universal_newline => true}).inspect}")
     value_of(value_of(wiki_data, 3), 0)
   end
@@ -35,59 +36,58 @@ class Book
     end
   end
 
-  def initialize(openlibrary_id)
-    # Raw data
-    work_thread = Thread.new {
-      work_data = uri_to_json("https://openlibrary.org/works/#{openlibrary_id}.json")
-      @title = value_of(work_data, 'title')
-      @description = value_of(work_data['description'], 'value')
-      @publish_date = value_of(work_data, 'publish_date')
-      @amazon_id = value_of(value_of(work_data, 'identifiers'), 'amazon').to_s.delete '["]'
-      @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{amazon_id}"
+  def populate_work_data(openlibrary_id)
+    work_data = uri_to_json("https://openlibrary.org/works/#{openlibrary_id}.json")
+    @title = value_of(work_data, 'title')
+    @description = value_of(work_data['description'], 'value')
+    @publish_date = value_of(work_data, 'publish_date')
+    @amazon_id = value_of(value_of(work_data, 'identifiers'), 'amazon').to_s.delete '["]'
+    @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{amazon_id}"
+    return work_data
+  end
 
-      author_data_var = author_data(work_data)
-      @author = value_of(author_data_var, 'name')
-      @author = value_of(work_data, 'by_statement') if @author == ''
-
-      # remove /authors/ from /authors/<author_id>
-      @author_id = value_of(author_data_var, 'key').delete('/authors/')
-      @author_wiki = get_wiki(@author)
-      @book_wiki = get_wiki(@title)
-      @cover_id = value_of(value_of(work_data, 'covers'), 0)
-      log("COVER ID! #{@cover_id}")
-      if @cover_id == ''
-        @cover_img_small = ''
-        @cover_img_medium = ''
-        @cover_img_large = ''
-      else
-        @cover_img_small = "https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg"
-        @cover_img_medium = "https://covers.openlibrary.org/b/id/#{@cover_id}-M.jpg"
-        @cover_img_large = "https://covers.openlibrary.org/b/id/#{@cover_id}-L.jpg"
-      end
-
-      if @author_id == ''
-        @author_img_small = ''
-        @author_img_medium = ''
-        @author_img_large = ''
-      else
-        @author_img_small = "https://covers.openlibrary.org/b/olid/#{@author_id}-S.jpg"
-        @author_img_medium = "https://covers.openlibrary.org/b/olid/#{@author_id}-M.jpg"
-        @author_img_large = "https://covers.openlibrary.org/b/olid/#{@author_id}-L.jpg"
-      end
-
-    }
-
-    books_thread = Thread.new {
-      book_data = uri_to_json("https://openlibrary.org/books/#{openlibrary_id}.json")
-      @subjects = value_of(book_data, 'subjects')
-      @isbn = value_of(value_of(book_data, 'isbn_10'), 0)
-      @number_of_pages = value_of(value_of(book_data, 'notes'), 'number_of_pages')
-      @rating = get_rating(set_goodreads_key)
-    }
+  def populate_book_data(openlibrary_id)
+    book_data = uri_to_json("https://openlibrary.org/books/#{openlibrary_id}.json")
+    @subjects = value_of(book_data, 'subjects')
+    @isbn = value_of(value_of(book_data, 'isbn_10'), 0)
+    @number_of_pages = value_of(value_of(book_data, 'notes'), 'number_of_pages')
+    @rating = get_rating(set_goodreads_key)
     @id = openlibrary_id
+  end
 
-    work_thread.join
-    books_thread.join
+  def populate_author_data(work_data)
+    author_data_var = author_data(work_data)
+    @author = value_of(author_data_var, 'name')
+    @author = value_of(work_data, 'by_statement') if @author == ''
+
+    # remove /authors/ from /authors/<author_id>
+    @author_id = value_of(author_data_var, 'key').delete('/authors/')
+    @author_wiki = get_wiki(@author)
+    @book_wiki = get_wiki(@title)
+    @cover_id = value_of(value_of(work_data, 'covers'), 0)
+    if @cover_id == ''
+      @cover_img_small = ''
+      @cover_img_medium = ''
+      @cover_img_large = ''
+    else
+      @cover_img_small = "https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg"
+      @cover_img_medium = "https://covers.openlibrary.org/b/id/#{@cover_id}-M.jpg"
+      @cover_img_large = "https://covers.openlibrary.org/b/id/#{@cover_id}-L.jpg"
+    end
+
+    if @author_id == ''
+      @author_img_small = ''
+      @author_img_medium = ''
+      @author_img_large = ''
+    else
+      @author_img_small = "https://covers.openlibrary.org/b/olid/#{@author_id}-S.jpg"
+      @author_img_medium = "https://covers.openlibrary.org/b/olid/#{@author_id}-M.jpg"
+      @author_img_large = "https://covers.openlibrary.org/b/olid/#{@author_id}-L.jpg"
+    end
+  end
+  def initialize(openlibrary_id)
+    populate_book_data(openlibrary_id)
+    populate_author_data(populate_work_data(openlibrary_id))
   end
 
   attr_reader :id, :title, :author_id, :author, :description, :subjects,

@@ -30,12 +30,9 @@ def search(search = '', limit = 10)
   }
   search_data = uri_to_json('https://openlibrary.org/search.json', query)
 
-  book_ids = []
-  search_data['docs']&.each_with_index do |result, i|
-    book_ids.push(value_of(result, 'key').delete('/works/'))
-    return book_ids if i >= limit
+  book_ids = Parallel.map(search_data['docs']) do |result|
+    value_of(result, 'key').delete('/works/')
   end
-  return book_ids
 end
 
 $goodreads_key = nil
