@@ -37,5 +37,9 @@ input[type=submit] {
   <body>
     <h1>MyRead - <%= response_code %></h1>
     <img src="https://http.cat/<%= response_code %>"/>
+    <% if response_code == 401 %>
+      <br>
+      <img src='https://www.reactiongifs.com/r/2013/08/no-power.gif'>
+    <% end %>
   </body>
 </html>
