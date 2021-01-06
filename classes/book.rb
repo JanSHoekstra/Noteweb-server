@@ -85,6 +85,7 @@ class Book
       @author_img_large = "https://covers.openlibrary.org/b/olid/#{@author_id}-L.jpg"
     end
   end
+
   def initialize(openlibrary_id)
     populate_book_data(openlibrary_id)
     populate_author_data(populate_work_data(openlibrary_id))

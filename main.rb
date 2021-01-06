@@ -213,6 +213,7 @@ class MyReadServer < Sinatra::Base
   get '/search_book/:search' do
     if session[:id]
       book_ids = search(params[:search])
+
       halt 400 if !book_ids
 
       # Launch a thread per Book ID to retrieve details about this book, results in much faster execution

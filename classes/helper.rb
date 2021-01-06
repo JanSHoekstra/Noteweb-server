@@ -30,7 +30,7 @@ def search(search = '', limit = 10)
   }
   search_data = uri_to_json('https://openlibrary.org/search.json', query)
 
-  book_ids = Parallel.map(search_data['docs']) do |result|
+  book_ids = search_data['docs'].map do |result|
     value_of(result, 'key').delete('/works/')
   end
 end
