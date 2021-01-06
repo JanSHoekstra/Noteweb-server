@@ -14,7 +14,7 @@ rescue HTTParty::ResponseError => e
   log(e)
   false
 rescue JSON::ParserError => e
-  log(e) unless e.to_s[0] == '<'
+  log('JSON ParserError.')
   false
 end
 
