@@ -10,8 +10,11 @@ end
 
 def uri_to_json(uri, query = nil)
   query.nil? ? JSON.parse(HTTParty.get(uri.to_s).to_s) : JSON.parse(HTTParty.get(uri.to_s, query: query).to_s)
-rescue HTTParty::ResponseError, JSON::ParserError => e
+rescue HTTParty::ResponseError => e
   log(e)
+  false
+rescue JSON::ParserError => e
+  log('JSON ParserError.')
   false
 end
 
