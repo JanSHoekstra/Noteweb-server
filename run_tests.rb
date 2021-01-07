@@ -53,7 +53,9 @@ class UnitTest < Test::Unit::TestCase
     assert_equal(false, u.add_book_to_collection('testuser', 'New collection', 'OL26412312M'))
     assert_equal(true, u.add_book_to_collection('testuser', 'New collection', 'OL18009471W'))
 
-    assert_equal(true, u.del_collection('testuser', 'New collection'))
+    assert_equal(true, u.chname_collection('testuser', 'New collection', 'Favorites'))
+
+    assert_equal(true, u.del_collection('testuser', 'Favorites'))
   end
 
   # Test to validate if the value_of method is functioning as intended

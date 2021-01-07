@@ -16,6 +16,7 @@ class Book
       'isbns': @isbn,
       'format': 'json'
     }
+
     reviews = HTTParty.get('https://www.goodreads.com/book/review_counts.json', query: query)
     goodreads_data = JSON.parse(reviews.to_s)
     value_of(goodreads_data['books'][0], 'average_rating').to_f
