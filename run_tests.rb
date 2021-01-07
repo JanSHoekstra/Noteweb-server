@@ -31,7 +31,7 @@ class UnitTest < Test::Unit::TestCase
     u = Users.new
     assert_equal(true, u.add('testuser', 'Testp4ssword123!'))
 
-    assert_equal(true, u.del('testuser'))
+    assert_equal(true, u.del('testuser', 'Testp4ssword123!'))
   end
 
   # Test to check if changing passwords is possible on users
