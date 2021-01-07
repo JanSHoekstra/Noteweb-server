@@ -131,7 +131,25 @@ class MyReadServer < Sinatra::Base
   post '/user/:name/change_password' do
     if params.key?(:name) && params.key?(:old_pass) && params.key?(:new_pass)
       if params[:name] == session[:id]
-        users.chpass(params[:name], params[:old_pass], params[:new_pass]) ? status(200) : halt(400)
+        users.chpass(params[:name], params[:old_pass], params[:new_pass]) ? status(200) : halt(401)
+      else
+        halt 401
+      end
+    else
+      halt 400
+    end
+  end
+
+  # Delete users account, need to be logged in as specified user
+  post '/user/:name/delete' do
+    if params.key?(:name) && params.key?(:pass)
+      if params[:name] == session[:id]
+        if users.del(params[:name], params[:pass])
+          session.delete(:id)
+          status 200
+        else
+          halt 401
+        end
       else
         halt 401
       end

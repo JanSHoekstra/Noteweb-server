@@ -60,7 +60,9 @@ j   # Create empty json in db directory if those do not exist yet
     @changed_since_last_write = true
   end
 
-  def del(name)
+  def del(name, pass)
+    return false if !login(name, pass)
+
     @users.delete(name)
     @changed_since_last_write = true
   end

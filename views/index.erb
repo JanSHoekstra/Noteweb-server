@@ -68,10 +68,6 @@ input[type=submit] {
 		<p>Hello there, <b id="username"><%= CGI.escapeHTML(session[:id]) %></b>!</p>
 		<a href="/user/<%= CGI.escapeHTML(session[:id]) %>">My profile</a><br>
 		<a href="/user/<%= CGI.escapeHTML(session[:id]) %>/book_collections">My book collections</a>
-		<h2>Sign out</h2>
-		<form method="get" action="/signout">
-			<input type="submit" value="Sign out"></input>
-		</form>
 
 		<script type="text/javascript">
 			function GetBook() {
@@ -82,7 +78,17 @@ input[type=submit] {
 				document.changepassword.action = '/user/' + '<%= CGI.escapeHTML(session[:id]) %>' + '/change_password';
 				return true;
 			}
+			function DeleteAccount() {
+				document.deleteaccount.action = '/user/' + '<%= CGI.escapeHTML(session[:id]) %>' + '/delete';
+				return true;
+			}
 		</script>
+
+		<h2>Sign out</h2>
+		<form method="get" action="/signout">
+			<input type="submit" value="Sign out"></input>
+		</form>
+
 		<h2>Get book</h2>
 		<form name="getbook" method="get" action="/book" onsubmit="GetBook()">
 			<input type="text" id="book" placeholder="OpenLibrary ID"</input>
@@ -90,12 +96,18 @@ input[type=submit] {
 		</form>
 
 		<h2>Change password</h2>
-		<!-- change hardcoded -->
 		<form name="changepassword" method="post" action="/user" onsubmit="ChangePassword()">
 			<input name="old_pass" id="old_pass" type="password" placeholder="Old password"></input>
 			<input name="new_pass" id="new_pass" type="password" placeholder="New password"></input>
 			<input type="submit" value='Submit'></input>
 		</form>
+
+    <h2>Delete account</h2>
+		<form name="deleteaccount" method="post" action="/user" onsubmit="DeleteAccount()">
+			<input name="pass" id="pass" type="password" placeholder="Password"></input>
+			<input type="submit" value='Delete'></input>
+		</form>
+
 	<% end %>
 
 	</body>
