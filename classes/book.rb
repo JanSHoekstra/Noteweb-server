@@ -67,7 +67,6 @@ class Book
     if @cover_id != '' && !@cover_id.negative?
       cover_request = Typhoeus::Request.new("https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg?default=false", followlocation: true)
       cover_request.on_headers do |response|
-        puts "RESPONSE CODE AAAAAAAAAAAAAAAAA #{response.code}"
         if response.success?
           @cover_img_small = "https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg"
           @cover_img_medium = "https://covers.openlibrary.org/b/id/#{@cover_id}-M.jpg"
