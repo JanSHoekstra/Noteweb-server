@@ -37,7 +37,7 @@ class Book
   def populate_work_data(openlibrary_id)
     work_data = uri_to_json("https://openlibrary.org/works/#{openlibrary_id}.json")
     @title = value_of(work_data, 'title')
-    @description = value_of(work_data['description'], 'value')
+    @description = value_of(value_of(work_data, 'description'), 'value')
     @publish_date = value_of(work_data, 'publish_date')
     @amazon_id = value_of(value_of(work_data, 'identifiers'), 'amazon').to_s.delete '["]'
     @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{amazon_id}"
