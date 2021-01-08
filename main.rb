@@ -236,8 +236,10 @@ class MyReadServer < Sinatra::Base
 
       # Launch a thread per Book ID to retrieve details about this book, results in much faster execution
       books_to_return = Parallel.map(book_ids) do |book_id|
-        books[book_id] ||= Book.new(book_id)
-        books[book_id].to_hash
+        # Code below seems to have issues with multiple threads accessing books
+        #books[book_id] ||= Book.new(book_id)
+        #books[book_id].to_hash
+        Book.new(book_id).to_hash
       end
 
       json books_to_return

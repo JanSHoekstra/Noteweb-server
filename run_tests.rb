@@ -40,11 +40,12 @@ class UnitTest < Test::Unit::TestCase
     assert_equal(true, u.add('testuser', 'Testp4ssword123!'))
 
     assert_equal(true, u.chpass('testuser', 'Testp4ssword123!', 'MyNewPassw0rd!'))
+
     assert_equal(false, u.login('testuser', 'Testp4ssword123!'))
     assert_equal(true, u.login('testuser', 'MyNewPassw0rd!'))
   end
 
-  # Test to check if book collections work and if it's possible to add duplicate book entries to a book collection
+  # Test to check if methods relating to book collections are working (CRUD)
   def test_book_collection
     u = Users.new
     assert_equal(true, u.add('testuser', 'Testp4ssword123!'))
