@@ -63,24 +63,26 @@ class Book
     @author_wiki = get_wiki(@author)
     @book_wiki = get_wiki(@title)
     @cover_id = value_of(value_of(work_data, 'covers'), 0)
-    if @cover_id == ''
+    # Checking for lower than 0 because OpenLibrary seems to use -1 sometimes for books with no covers? Weird API quirk. Example: /works/OL20759146W
+    if @cover_id != '' && !@cover_id.negative?
+      cover_request = Typhoeus::Request.new("https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg?default=false", followlocation: true)
+      cover_request.on_headers do |response|
+        puts "RESPONSE CODE AAAAAAAAAAAAAAAAA #{response.code}"
+        if response.success?
+          @cover_img_small = "https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg"
+          @cover_img_medium = "https://covers.openlibrary.org/b/id/#{@cover_id}-M.jpg"
+          @cover_img_large = "https://covers.openlibrary.org/b/id/#{@cover_id}-L.jpg"
+        else
+          @cover_img_small = ''
+          @cover_img_medium = ''
+          @cover_img_large = ''
+        end
+      end
+      cover_request.run
+    else
       @cover_img_small = ''
       @cover_img_medium = ''
       @cover_img_large = ''
-    else
-      @cover_img_small = "https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg"
-      @cover_img_medium = "https://covers.openlibrary.org/b/id/#{@cover_id}-M.jpg"
-      @cover_img_large = "https://covers.openlibrary.org/b/id/#{@cover_id}-L.jpg"
-    end
-
-    if @author_id == ''
-      @author_img_small = ''
-      @author_img_medium = ''
-      @author_img_large = ''
-    else
-      @author_img_small = "https://covers.openlibrary.org/b/olid/#{@author_id}-S.jpg"
-      @author_img_medium = "https://covers.openlibrary.org/b/olid/#{@author_id}-M.jpg"
-      @author_img_large = "https://covers.openlibrary.org/b/olid/#{@author_id}-L.jpg"
     end
   end
 
