@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'httparty'
-
 require_relative 'helper'
 
 # Book object containing information about books
@@ -17,8 +15,7 @@ class Book
       'format': 'json'
     }
 
-    reviews = HTTParty.get('https://www.goodreads.com/book/review_counts.json', query: query)
-    goodreads_data = JSON.parse(reviews.to_s)
+    goodreads_data = uri_to_json('https://www.goodreads.com/book/review_counts.json', query)
     value_of(goodreads_data['books'][0], 'average_rating').to_f
   end
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'httparty'
+require 'typhoeus'
 require 'json'
 
 
@@ -9,12 +9,12 @@ def value_of(array, value)
 end
 
 def uri_to_json(uri, query = nil)
-  query.nil? ? JSON.parse(HTTParty.get(uri.to_s).to_s) : JSON.parse(HTTParty.get(uri.to_s, query: query).to_s)
-rescue HTTParty::ResponseError => e
-  log(e)
-  false
+  query.nil? ? JSON.parse(Typhoeus::Request.new(uri.to_s, followlocation: true).run.body) : JSON.parse(Typhoeus::Request.new(uri.to_s, params: query, followlocation: true).run.body)
+# rescue HTTParty::ResponseError => e
+#   log(e)
+#   false
 rescue JSON::ParserError => e
-  log('JSON ParserError.')
+  log('JSON ParserError!')
   false
 end
 
