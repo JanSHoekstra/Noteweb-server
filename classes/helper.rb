@@ -9,7 +9,7 @@ def value_of(array, value)
 end
 
 def uri_to_json(uri, query = nil)
-  query.nil? ? JSON.parse(Typhoeus::Request.new(uri.to_s, followlocation: true).run.body) : JSON.parse(Typhoeus::Request.new(uri.to_s, params: query, followlocation: true).run.body)
+  query.nil? ? JSON.parse(Typhoeus::Request.new(uri.to_s, followlocation: true, ssl_verifypeer: false).run.body) : JSON.parse(Typhoeus::Request.new(uri.to_s, params: query, followlocation: true, ssl_verifypeer: false).run.body)
 # rescue HTTParty::ResponseError => e
 #   log(e)
 #   false
