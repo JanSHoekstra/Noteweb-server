@@ -2,9 +2,9 @@
 # frozen_string_literal: true
 
 require 'test/unit'
-require_relative 'classes/users.rb'
-require_relative 'classes/helper.rb'
-require_relative 'classes/book.rb'
+require_relative 'classes/users'
+require_relative 'classes/helper'
+require_relative 'classes/book'
 
 # Class containing all unit tests
 class UnitTest < Test::Unit::TestCase
