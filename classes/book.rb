@@ -65,7 +65,7 @@ class Book
     @cover_id = value_of(value_of(work_data, 'covers'), 0)
     # Checking for lower than 0 because OpenLibrary seems to use -1 sometimes for books with no covers? Weird API quirk. Example: /works/OL20759146W
     if @cover_id != '' && !@cover_id.negative?
-      cover_request = Typhoeus::Request.new("https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg?default=false", followlocation: true)
+      cover_request = Typhoeus::Request.new("https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg?default=false", followlocation: true, ssl_verifypeer: false)
       cover_request.on_headers do |response|
         if response.success?
           @cover_img_small = "https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg"
