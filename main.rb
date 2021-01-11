@@ -250,7 +250,11 @@ class MyReadServer < Sinatra::Base
     session[:id] ? json(recommend(params[:author])) : halt(401)
   end
 
-  get '/recommend_book/:subject' do
+  get '/recommend_book_via_subject/:subject' do
+    session[:id] ? json(recommend('', params[:subject])) : halt(401)
+  end
+
+  get '/recommend_book_via_author_subject/:author/:subject' do
     session[:id] ? json(recommend(params[:author], params[:subject])) : halt(401)
   end
 
