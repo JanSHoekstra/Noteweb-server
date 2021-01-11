@@ -5,6 +5,11 @@ require_relative 'helper'
 # Book object containing information about books
 class Book
 
+  def initialize(openlibrary_id)
+    populate_book_data(openlibrary_id)
+    populate_author_data(populate_work_data(openlibrary_id))
+  end
+
   # Retrieve rating via Goodreads
   def get_rating(goodreads_key)
     return '' if @isbn == '' || @isbn.nil? || goodreads_key == ''
@@ -63,6 +68,7 @@ class Book
     @author_wiki = get_wiki(@author)
     @book_wiki = get_wiki(@title)
     @cover_id = value_of(value_of(work_data, 'covers'), 0)
+
     # Checking for lower than 0 because OpenLibrary seems to use -1 sometimes for books with no covers? Weird API quirk. Example: /works/OL20759146W
     if @cover_id != '' && !@cover_id.negative?
       cover_request = Typhoeus::Request.new("https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg?default=false", followlocation: true, ssl_verifypeer: false)
@@ -85,15 +91,6 @@ class Book
     end
   end
 
-  def initialize(openlibrary_id)
-    populate_book_data(openlibrary_id)
-    populate_author_data(populate_work_data(openlibrary_id))
-  end
-
-  attr_reader :id, :title, :author_id, :author, :description, :subjects,
-              :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki, :rating, :isbn,
-              :cover_id, :cover_img_small, :cover_img_medium, :cover_img_large, :author_img_small,
-              :author_img_medium, :author_img_large, :number_of_pages
 
   def print_details
     puts "Id: #{@id}"
@@ -105,9 +102,23 @@ class Book
     puts "Publish Date: #{@publish_date}"
     puts "Amazon ID: #{@amazon_id}"
     puts "Amazon Link: #{@amazon_link}"
+    puts "Cover Image Small: #{@cover_img_small}"
+    puts "Cover Image Medium: #{@cover_img_medium}"
+    puts "Cover Image Large: #{@cover_img_large}"
   end
 
   def to_hash
     Hash[instance_variables.map { |var| [var.to_s[1..-1], instance_variable_get(var)] }]
   end
+
+  def cover?
+    return @cover_img_small != ''
+  end
+
+  attr_reader :id, :title, :author_id, :author, :description, :subjects,
+              :publish_date, :amazon_id, :amazon_link, :author_wiki, :book_wiki, :rating, :isbn,
+              :cover_id, :cover_img_small, :cover_img_medium, :cover_img_large, :author_img_small,
+              :author_img_medium, :author_img_large, :number_of_pages
+
+  private :populate_book_data, :populate_work_data, :populate_author_data, :author_data, :get_wiki, :get_rating
 end

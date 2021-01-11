@@ -90,13 +90,18 @@ class UnitTest < Test::Unit::TestCase
     b = Book.new('OL26412312M')
     assert_equal(true, b.title == 'The bazaar of bad dreams')
     assert_equal(true, b.author == 'Stephen King')
+    assert_equal(true, b.cover?)
 
     b = Book.new('OL145191W')
     assert_equal(true, b.title == 'Picasso')
     assert_equal(true, b.subjects.include?('Amsterdam (Netherlands)'))
+    assert_equal(true, b.cover_img_small == 'https://covers.openlibrary.org/b/id/2238306-S.jpg')
 
     b = Book.new('OL8141930M')
     assert_equal(true, b.isbn.to_s == '0786806931')
     assert_equal(true, b.rating > 3.5 && b.rating < 5) if set_goodreads_key
+    assert_equal(true, 'cover_id' == 544_129)
+    assert_equal(true, b.publish_date == 'May 1, 2004')
   end
+
 end
