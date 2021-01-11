@@ -1,42 +1,8 @@
 # Reading App Server
 This is the server used for communication with the reading app that is built [here](https://www.github.com/tr4wzified/socialreadingapp).
 
-## Requirements
-### Server
-The server requires the following packages:
-- `sinatra`
-- `sinatra-json`
-- `sinatra-contrib`
-- `openssl`
-- `webrick`
-- `bcrypt`
-- `rufus-scheduler`
-- `httparty`
-- `addressable`
-- `rack-throttle`
-- `securerandom`
-- `rack_encrypted_cookie`
-- `slop`
-- `cgi`
-- `parallel`
-
-### Windows-only
-Windows has trouble with timezones when using rufus-scheduler, thus you should install the following package:
-- `tzinfo-data`
-
-### Fuzzer
-If you want to run the fuzzer, it requires:
-- `faraday`
-- `faraday-cookie_jar`
-
-### Unit Tests
-You will need the unit testing package if you want to run them.
-- `test-unit`
-
 ## Installation
-Run`bundle install` in the repo.
-
-Alternatively install the above packages using `gem install <package>`, assuming you have already installed Ruby (2.5.5+).
+Run`bundle install` in the repo. Ruby 2.5.5+ is required. Also make sure to have `curl` installed via your favorite package manager or grab it from [here](https://curl.se/windows/) for Windows.
 
 Download the repository (or clone it if you have Git: `git clone https://www.github.com/tr4wzified/SocialReadingAppServer`).
 
@@ -47,4 +13,4 @@ Run `ruby main.rb` in the repository directory. Access it on `127.0.0.1:2048`.
 Run `ruby run_tests.rb` in the repository directory.
 
 ## Running the fuzzer
-Run `ruby fuzzer/fuzzaday.rb` in the repository directory. Make sure to start up the server itself for this one.
+Run `ruby fuzzer/fuzzaday.rb` in the repository directory. Make sure to start up the server itself before attempting to run this one.
