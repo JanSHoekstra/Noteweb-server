@@ -102,6 +102,9 @@ class UnitTest < Test::Unit::TestCase
     assert_equal(true, b.rating > 3.5 && b.rating < 5) if set_goodreads_key
     assert_equal(true, 'cover_id' == 544_129)
     assert_equal(true, b.publish_date == 'May 1, 2004')
+
+    b = Book.new('OL24229110M')
+    assert_equal(true, b.amazon_link == 'https://www.amazon.com/dp/0451149513')
   end
 
 end
