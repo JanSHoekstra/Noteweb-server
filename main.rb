@@ -236,9 +236,6 @@ class MyReadServer < Sinatra::Base
 
       # Launch a thread per Book ID to retrieve details about this book, results in much faster execution
       books_to_return = Parallel.map(book_ids) do |book_id|
-        # Code below seems to have issues with multiple threads accessing books
-        #books[book_id] ||= Book.new(book_id)
-        #books[book_id].to_hash
         Book.new(book_id).to_hash
       end
 
@@ -249,7 +246,11 @@ class MyReadServer < Sinatra::Base
   end
 
   # Recommend a book based on author and subject(s - can be an array), need to be logged in
-  get '/recommend_book/:author/:subject' do
+  get '/recommend_book_via_author/:author' do
+    session[:id] ? json(recommend(params[:author])) : halt(401)
+  end
+
+  get '/recommend_book/:subject' do
     session[:id] ? json(recommend(params[:author], params[:subject])) : halt(401)
   end
 
