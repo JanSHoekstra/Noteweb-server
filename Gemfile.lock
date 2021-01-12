@@ -88,6 +88,7 @@ DEPENDENCIES
   faraday-cookie_jar
   openssl
   parallel
+  rack
   rack-throttle
   rack_encrypted_cookie
   rufus-scheduler
