@@ -43,8 +43,8 @@ class MyReadServer < Sinatra::Base
   end
 
   # Set up logging
-  logging_path = 'db/server.log'
-  Dir.mkdir('db') unless Dir.exist?('db')
+  logging_path = 'tmp/server.log'
+  Dir.mkdir('tmp') unless Dir.exist?('tmp')
   File.new(logging_path, 'w').close unless File.exist?(logging_path)
   $stdout.reopen(logging_path, 'w')
   $stdout.sync = true

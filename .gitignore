@@ -1,3 +1,5 @@
 db/*.json
 db/*.log
+tmp/*.json
+tmp/*.log
 main.bin
