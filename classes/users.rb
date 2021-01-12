@@ -9,9 +9,9 @@ require_relative 'bookcollection'
 # User class
 class Users
   def initialize
-    @users_path = 'tmp/users.json'
+    @users_path = '/tmp/users.json'
 j   # Create empty json in tmp directory if those do not exist yet
-    Dir.mkdir('tmp') unless Dir.exist?('tmp')
+    Dir.mkdir('/tmp') unless Dir.exist?('/tmp')
     File.open(@users_path, 'w') { |f| f.write('{}') } unless File.exist?(@users_path)
     @users = JSON.parse(File.open(@users_path).read)
     # For Windows, because Windows doesn't include timezones for whatever reason.

@@ -42,7 +42,7 @@ $goodreads_key = nil
 def set_goodreads_key
   return $goodreads_key unless $goodreads_key.nil?
 
-  goodreads_path = 'db/goodreads.json'
+  goodreads_path = '/tmp/goodreads.json'
   $goodreads_key = (JSON.parse(File.open(goodreads_path).read))['apikey'] if File.exist?(goodreads_path)
   return $goodreads_key unless $goodreads_key.nil? || $goodreads_key == ''
 
