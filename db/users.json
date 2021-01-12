@@ -1,0 +1,25 @@
+{
+  "Thimo": [
+    "$2a$12$m6W86lrjGs5gZ.JrTugp2esrZDJyeyu.dGdNAHYA6dnG6GJZ5tB16",
+    [
+      {
+        "name": "Favorites",
+        "books": [
+
+        ]
+      }
+    ]
+  ],
+  "Henk": [
+    "$2a$12$0xj1paaNhJ5ZoTPTD4uH0eoJBmC83819KdPHiA54xr0Q31M0Yok1u",
+    [
+
+    ]
+  ],
+  "Tim": [
+    "$2a$12$4oZn6yrMIeqAmtMRmCxU8.ALa2DsYZMlgpMVc7.kjn59uyjFvilba",
+    [
+
+    ]
+  ]
+}

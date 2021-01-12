@@ -1,0 +1,29 @@
+[2021-01-12 14:06:55] INFO  WEBrick 1.7.0
+[2021-01-12 14:06:55] INFO  ruby 2.7.2 (2020-10-01) [x86_64-linux]
+[2021-01-12 14:06:55] DEBUG WEBrick::HTTPServlet::FileHandler is mounted on /.
+[2021-01-12 14:06:55] DEBUG Rack::Handler::WEBrick is mounted on /.
+[2021-01-12 14:06:55] INFO  WEBrick::HTTPServer#start: pid=57184 port=2048
+[2021-01-12 14:06:59] DEBUG accept: 127.0.0.1:39598
+[2021-01-12 14:06:59] DEBUG Rack::Handler::WEBrick is invoked.
+127.0.0.1 - - [12/Jan/2021:14:06:59 CET] "GET / HTTP/1.1" 200 1764
+- -> /
+[2021-01-12 14:06:59] DEBUG Rack::Handler::WEBrick is invoked.
+127.0.0.1 - - [12/Jan/2021:14:06:59 CET] "GET /favicon.ico HTTP/1.1" 404 511
+http://127.0.0.1:2048/ -> /favicon.ico
+[2021-01-12 14:07:02] FATAL Interrupt: 
+	/home/fire/.gem/ruby/2.7.0/gems/webrick-1.7.0/lib/webrick/server.rb:173:in `select'
+	/home/fire/.gem/ruby/2.7.0/gems/webrick-1.7.0/lib/webrick/server.rb:173:in `block in start'
+	/home/fire/.gem/ruby/2.7.0/gems/webrick-1.7.0/lib/webrick/server.rb:32:in `start'
+	/home/fire/.gem/ruby/2.7.0/gems/webrick-1.7.0/lib/webrick/server.rb:160:in `start'
+	/home/fire/.gem/ruby/2.7.0/gems/rack-2.2.3/lib/rack/handler/webrick.rb:41:in `run'
+	main.rb:304:in `<main>'
+[2021-01-12 14:07:02] DEBUG close TCPSocket(0.0.0.0, 2048)
+[2021-01-12 14:07:02] INFO  going to shutdown ...
+[2021-01-12 14:07:02] DEBUG close: 127.0.0.1:39598
+[2021-01-12 14:07:02] INFO  WEBrick::HTTPServer#start done.
+/home/fire/.gem/ruby/2.7.0/gems/webrick-1.7.0/lib/webrick/server.rb:173:in `select': Interrupt
+	from /home/fire/.gem/ruby/2.7.0/gems/webrick-1.7.0/lib/webrick/server.rb:173:in `block in start'
+	from /home/fire/.gem/ruby/2.7.0/gems/webrick-1.7.0/lib/webrick/server.rb:32:in `start'
+	from /home/fire/.gem/ruby/2.7.0/gems/webrick-1.7.0/lib/webrick/server.rb:160:in `start'
+	from /home/fire/.gem/ruby/2.7.0/gems/rack-2.2.3/lib/rack/handler/webrick.rb:41:in `run'
+	from main.rb:304:in `<main>'
