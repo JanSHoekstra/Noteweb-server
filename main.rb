@@ -19,7 +19,7 @@ require_relative 'classes/helper'
 
 webrick_options = {
   Host: '0.0.0.0',
-  Port: 5000,
+  Port: ENV['PORT'],
   Logger: WEBrick::Log.new($stderr, WEBrick::Log::DEBUG),
   DocumentRoot: '/ruby/htdocs',
   SSLEnable: true,
