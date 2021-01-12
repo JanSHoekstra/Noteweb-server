@@ -22,11 +22,11 @@ webrick_options = {
   Port: ENV['PORT'],
   Logger: WEBrick::Log.new($stderr, WEBrick::Log::DEBUG),
   DocumentRoot: '/ruby/htdocs',
-  SSLEnable: true,
-  SSLVerifyClient: OpenSSL::SSL::VERIFY_NONE,
-  SSLCertificate: OpenSSL::X509::Certificate.new(File.open('alt.cert').read),
-  SSLPrivateKey: OpenSSL::PKey::RSA.new(File.open('alt.key').read),
-  SSLCertName: [['CN', WEBrick::Utils.getservername]]
+  # SSLEnable: true,
+  # SSLVerifyClient: OpenSSL::SSL::VERIFY_NONE,
+  # SSLCertificate: OpenSSL::X509::Certificate.new(File.open('alt.cert').read),
+  # SSLPrivateKey: OpenSSL::PKey::RSA.new(File.open('alt.key').read),
+  # SSLCertName: [['CN', WEBrick::Utils.getservername]]
 }
 
 # The server
