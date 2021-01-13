@@ -255,8 +255,9 @@ class MyReadServer < Sinatra::Base
 
       # Cache book results instead of using multithreading to search for each book
       # This will be faster when not having a lot of threads and searching multiple times
+      current_time = Time.now
       books_to_return = book_ids.map do |book_id|
-        books[book_id] = [Book.new(book_id, true), Time.now] if books[book_id].nil? || (Time.now - books[book_id][1]) > 86_400
+        books[book_id] = [Book.new(book_id, true), current_time] if books[book_id].nil? || (current_time - books[book_id][1]) > 86_400
         books[book_id][0].to_hash
       end
 
@@ -284,7 +285,8 @@ class MyReadServer < Sinatra::Base
     halt 400 if params[:book].nil?
     if session[:id]
       # Use book cache, refresh cache if the current book cache is older than 24 hours (86400s)
-      books[params[:book]] = [Book.new(params[:book]), Time.now] if books[params[:book]].nil? || (Time.now - books[params[:book]][1]) > 86_400
+      current_time = Time.now
+      books[params[:book]] = [Book.new(params[:book]), current_time] if books[params[:book]].nil? || (current_time - books[params[:book]][1]) > 86_400
       json (books[params[:book]])[0].to_hash
     else
       halt 401
