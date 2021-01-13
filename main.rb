@@ -17,17 +17,28 @@ require_relative 'classes/users'
 require_relative 'classes/book'
 require_relative 'classes/helper'
 
-webrick_options = {
-  Host: '0.0.0.0',
-  Port: 2048,
-  Logger: WEBrick::Log.new($stderr, WEBrick::Log::DEBUG),
-  DocumentRoot: '/ruby/htdocs',
-  SSLEnable: true,
-  SSLVerifyClient: OpenSSL::SSL::VERIFY_NONE,
-  SSLCertificate: OpenSSL::X509::Certificate.new(File.open('/etc/letsencrypt/live/socialread.tk/fullchain.pem').read),
-  SSLPrivateKey: OpenSSL::PKey::RSA.new(File.open('/etc/letsencrypt/live/socialread.tk/privkey.pem').read),
-  SSLCertName: [['CN', WEBrick::Utils.getservername]]
-}
+
+if File.exists?('/etc/letsencrypt/live/socialread.tk/fullchain.pem')
+  webrick_options = {
+    Host: '0.0.0.0',
+    Port: 2048,
+    Logger: WEBrick::Log.new($stderr, WEBrick::Log::DEBUG),
+    DocumentRoot: '/ruby/htdocs',
+    SSLEnable: true,
+    SSLVerifyClient: OpenSSL::SSL::VERIFY_NONE,
+    SSLCertificate: OpenSSL::X509::Certificate.new(File.open('/etc/letsencrypt/live/socialread.tk/fullchain.pem').read),
+    SSLPrivateKey: OpenSSL::PKey::RSA.new(File.open('/etc/letsencrypt/live/socialread.tk/privkey.pem').read),
+    SSLCertName: [['CN', WEBrick::Utils.getservername]]
+  }
+else
+  webrick_options = {
+    Host: '0.0.0.0',
+    Port: 2048,
+    Logger: WEBrick::Log.new($stderr, WEBrick::Log::DEBUG),
+    DocumentRoot: '/ruby/htdocs',
+    SSLEnable: false
+  }
+end
 
 # The server
 class MyReadServer < Sinatra::Base
