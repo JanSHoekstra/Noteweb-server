@@ -103,12 +103,12 @@ class MyReadServer < Sinatra::Base
 
   # Register
   post '/register' do
-    params.key?(:name) && params.key?(:pass) && users.add(params[:name], params[:pass]) ? status(201) : halt(400)
+    !params[:name].nil? && !params[:pass].nil? && users.add(params[:name], params[:pass]) ? status(201) : halt(400)
   end
 
   # Login
   post '/login' do
-    if params.key?(:name) && params.key?(:pass) && users.login(params[:name], params[:pass])
+    if !params[:name].nil? && !params[:pass].nil? && users.login(params[:name], params[:pass])
       session[:id] = params[:name]
       redirect '/'
     else
@@ -129,7 +129,7 @@ class MyReadServer < Sinatra::Base
 
   # Change password for user, need to be logged in as specified user
   post '/user/:name/change_password' do
-    if params.key?(:name) && params.key?(:old_pass) && params.key?(:new_pass)
+    if !params[:name].nil? && !params[:old_pass].nil? && !params[:new_pass].nil?
       if params[:name] == session[:id]
         users.chpass(params[:name], params[:old_pass], params[:new_pass]) ? status(200) : halt(401)
       else
@@ -142,7 +142,7 @@ class MyReadServer < Sinatra::Base
 
   # Delete users account, need to be logged in as specified user
   post '/user/:name/delete' do
-    if params.key?(:name) && params.key?(:pass)
+    if !params[:name].nil? && !params[:pass].nil?
       if params[:name] == session[:id]
         if users.del(params[:name], params[:pass])
           session.delete(:id)
@@ -260,7 +260,7 @@ class MyReadServer < Sinatra::Base
 
   # Get book information via id, need to be logged in
   get '/book/:book' do
-    halt 400 if !params.key?(:book)
+    halt 400 if params[:book].nil?
     if session[:id]
       # Use book cache, refresh cache if the current book cache is older than 24 hours (86400s)
       books[params[:book]] = [Book.new(params[:book]), Time.now] if books[params[:book]].nil? || (Time.now - books[params[:book]][1]) > 86400
@@ -273,7 +273,7 @@ class MyReadServer < Sinatra::Base
   # Get data entry from book, need to be logged in
   get '/book/:book/:param' do
     if session[:id]
-      books[params[:book]] ||= [Book.new(params[:book]), Time.now] if params.key?(:book)
+      books[params[:book]] ||= [Book.new(params[:book]), Time.now] unless params[:book].nil?
       b = books[params[:book]][0]
       b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
     else
