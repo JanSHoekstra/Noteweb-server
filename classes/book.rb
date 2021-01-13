@@ -26,7 +26,6 @@ class Book
     }
 
     goodreads_data = uri_to_json('https://www.goodreads.com/book/review_counts.json', query)
-    value_of(goodreads_data['books'][0], 'average_rating').to_f
     value_of(value_of(value_of(goodreads_data, 'books'), 0), 'average_rating').to_f
   end
 
