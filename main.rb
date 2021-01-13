@@ -243,11 +243,21 @@ class MyReadServer < Sinatra::Base
     if session[:id]
       book_ids = search(params[:search])
 
-      halt 400 if !book_ids
+      halt 400 if !book_ids || book_ids.nil? || book_ids == ''
 
-      # Launch a thread per Book ID to retrieve details about this book, results in much faster execution
-      books_to_return = Parallel.map(book_ids) do |book_id|
-        Book.new(book_id, true).to_hash
+      # Launch a thread per Book ID to retrieve details about this book
+      # Results in much faster execution if there are a lot of threads available on the CPU
+      # Disabled because it's slower on the Azure system (4 threads)
+      # Kept in the code base because it's faster on systems with > 10 threads
+      # books_to_return = Parallel.map(book_ids) do |book_id|
+      #   Book.new(book_id, true).to_hash
+      # end
+
+      # Cache book results instead of using multithreading to search for each book
+      # This will be faster when not having a lot of threads and searching multiple times
+      books_to_return = book_ids.map do |book_id|
+        books[book_id] = [Book.new(book_id, true), Time.now] if books[book_id].nil? || (Time.now - books[book_id][1]) > 86_400
+        books[book_id][0].to_hash
       end
 
       json books_to_return
@@ -274,7 +284,7 @@ class MyReadServer < Sinatra::Base
     halt 400 if params[:book].nil?
     if session[:id]
       # Use book cache, refresh cache if the current book cache is older than 24 hours (86400s)
-      books[params[:book]] = [Book.new(params[:book]), Time.now] if books[params[:book]].nil? || (Time.now - books[params[:book]][1]) > 86400
+      books[params[:book]] = [Book.new(params[:book]), Time.now] if books[params[:book]].nil? || (Time.now - books[params[:book]][1]) > 86_400
       json (books[params[:book]])[0].to_hash
     else
       halt 401
