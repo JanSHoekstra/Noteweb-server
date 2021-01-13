@@ -34,7 +34,7 @@ def search(search = '', limit = 10)
   search_data = uri_to_json('https://openlibrary.org/search.json', query)
 
   book_ids = search_data['docs'].map do |result|
-    value_of(result, 'key').delete('/works/')
+    value_of(value_of(result, 'isbn'), 0).delete('/books/')
   end
 end
 

@@ -5,14 +5,19 @@ require_relative 'helper'
 # Book object containing information about books
 class Book
 
-  def initialize(openlibrary_id)
+  def initialize(openlibrary_id, isbn = false)
+    if isbn
+      populate_book_data_isbn(openlibrary_id)
+      populate_author_data(populate_work_data(@id))
+    else
     populate_book_data(openlibrary_id)
     populate_author_data(populate_work_data(openlibrary_id))
+    end
   end
 
   # Retrieve rating via Goodreads
   def get_rating(goodreads_key)
-    return '' if @isbn == '' || @isbn.nil? || goodreads_key == ''
+    return '' if @isbn.nil? || @isbn == '' || goodreads_key.nil? || goodreads_key == ''
 
     query = {
       'key': goodreads_key,
@@ -22,6 +27,7 @@ class Book
 
     goodreads_data = uri_to_json('https://www.goodreads.com/book/review_counts.json', query)
     value_of(goodreads_data['books'][0], 'average_rating').to_f
+    value_of(value_of(value_of(goodreads_data, 'books'), 0), 'average_rating').to_f
   end
 
   def get_wiki(search)
@@ -40,34 +46,23 @@ class Book
   end
 
   def populate_work_data(openlibrary_id)
-    work_data = uri_to_json("https://openlibrary.org/works/#{openlibrary_id}.json")
+    work_data = nil
+    if !@work_id.nil? && @work_id != ''
+      work_data = uri_to_json("https://openlibrary.org/works/#{@work_id}.json")
+    else
+      work_data = uri_to_json("https://openlibrary.org/works/#{openlibrary_id}.json")
+    end
     @title = value_of(work_data, 'title')
-    @description = value_of(value_of(work_data, 'description'), 'value')
-    @publish_date = value_of(work_data, 'publish_date')
-    @amazon_id = value_of(value_of(work_data, 'identifiers'), 'amazon').to_s.delete '["]'
-    @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{amazon_id}"
-    return work_data
-  end
-
-  def populate_book_data(openlibrary_id)
-    book_data = uri_to_json("https://openlibrary.org/books/#{openlibrary_id}.json")
-    @subjects = value_of(book_data, 'subjects')
-    @isbn = value_of(value_of(book_data, 'isbn_10'), 0)
-    @number_of_pages = value_of(value_of(book_data, 'notes'), 'number_of_pages')
-    @rating = get_rating(set_goodreads_key)
-    @id = openlibrary_id
-  end
-
-  def populate_author_data(work_data)
-    author_data_var = author_data(work_data)
-    @author = value_of(author_data_var, 'name')
-    @author = value_of(work_data, 'by_statement') if @author == ''
-
-    # remove /authors/ from /authors/<author_id>
-    @author_id = value_of(author_data_var, 'key').delete('/authors/')
-    @author_wiki = get_wiki(@author)
-    @book_wiki = get_wiki(@title)
+    @subjects = value_of(work_data, 'subjects') if @subjects.nil? || @subjects == ''
+    @description = value_of(work_data, 'description')
+    @description = value_of(value_of(work_data, 'description'), 'value') if @description.nil? || @description == ''
+    @publish_date = value_of(work_data, 'publish_date') if @publish_date.nil? || @publish_date == ''
+    if @amazon_id.nil? || @amazon_id == ''
+      @amazon_id = value_of(value_of(work_data, 'identifiers'), 'amazon').to_s.delete '["]'
+      @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{@amazon_id}"
+    end
     @cover_id = value_of(value_of(work_data, 'covers'), 0)
+    @book_wiki = get_wiki(@title)
 
     # Checking for lower than 0 because OpenLibrary seems to use -1 sometimes for books with no covers? Weird API quirk. Example: /works/OL20759146W
     if @cover_id != '' && !@cover_id.negative?
@@ -89,6 +84,50 @@ class Book
       @cover_img_medium = ''
       @cover_img_large = ''
     end
+    return work_data
+  end
+
+  def populate_book_data(openlibrary_id)
+    book_data = uri_to_json("https://openlibrary.org/books/#{openlibrary_id}.json")
+    @subjects = value_of(book_data, 'subjects')
+    @isbn = value_of(value_of(book_data, 'isbn_10'), 0)
+    @isbn = value_of(value_of(book_data, 'isbn_13'), 0) if @isbn.nil? || @isbn == ''
+    @number_of_pages = value_of(book_data, 'number_of_pages')
+    @number_of_pages = value_of(value_of(book_data, 'notes'), 'number_of_pages') if @number_of_pages.nil? || @number_of_pages == ''
+    @rating = get_rating(set_goodreads_key)
+    @id = openlibrary_id
+    @work_id = value_of(value_of(value_of(book_data, 'works'), 0), 'key').delete('/works/')
+    @publish_date = value_of(book_data, 'publish_date')
+    if value_of(value_of(book_data, 'source_records'), 0).include?('amazon:')
+      @amazon_id = (value_of(value_of(book_data, 'source_records'), 0).delete 'amazon:')
+      @amazon_link = (@amazon_id == '' ? '' : "https://www.amazon.com/dp/#{@amazon_id}")
+    end
+  end
+
+  def populate_book_data_isbn(isbn)
+    book_data = uri_to_json("https://openlibrary.org/isbn/#{isbn}.json")
+    @isbn = isbn
+    @subjects = value_of(book_data, 'subjects')
+    @number_of_pages = value_of(book_data, 'number_of_pages')
+    @number_of_pages = value_of(value_of(book_data, 'notes'), 'number_of_pages') if @number_of_pages.nil? || @number_of_pages == ''
+    @rating = get_rating(set_goodreads_key)
+    @id = value_of(book_data, 'key').delete('/books/')
+    @work_id = value_of(value_of(value_of(book_data, 'works'), 0), 'key').delete('/works/')
+    @publish_date = value_of(book_data, 'publish_date')
+    if value_of(value_of(book_data, 'source_records'), 0).include?('amazon:')
+      @amazon_id = (value_of(value_of(book_data, 'source_records'), 0).delete 'amazon:')
+      @amazon_link = (@amazon_id == '' ? '' : "https://www.amazon.com/dp/#{amazon_id}")
+    end
+  end
+
+  def populate_author_data(work_data)
+    author_data_var = author_data(work_data)
+    @author = value_of(author_data_var, 'name')
+    @author = value_of(work_data, 'by_statement') if @author == ''
+
+    # remove /authors/ from /authors/<author_id>
+    @author_id = value_of(author_data_var, 'key').delete('/authors/')
+    @author_wiki = get_wiki(@author)
   end
 
 
