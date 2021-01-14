@@ -56,8 +56,6 @@ class Book
     @description = value_of(work_data, 'description')
     @description = value_of(value_of(work_data, 'description'), 'value') if @description.nil? || @description == ''
     @publish_date = value_of(work_data, 'publish_date') if @publish_date.nil? || @publish_date == ''
-    puts @amazon_id.nil?
-    puts @amazon_id == ''
     if @amazon_id.nil? || @amazon_id == ''
       @amazon_id = value_of(value_of(work_data, 'identifiers'), 'amazon').to_s.delete '["]'
       @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{@amazon_id}"
@@ -122,6 +120,10 @@ class Book
     if value_of(value_of(book_data, 'source_records'), 0).include?('amazon:')
       @amazon_id = (value_of(value_of(book_data, 'source_records'), 0).delete 'amazon:')
       @amazon_link = (@amazon_id == '' ? '' : "https://www.amazon.com/dp/#{amazon_id}")
+    end
+    if @amazon_id.nil? || @amazon_id == ''
+      @amazon_id = value_of(value_of(book_data, 'identifiers'), 'amazon').to_s.delete '["]'
+      @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{@amazon_id}"
     end
   end
 
