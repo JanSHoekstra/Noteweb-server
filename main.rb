@@ -257,8 +257,10 @@ class MyReadServer < Sinatra::Base
       # This will be faster when not having a lot of threads and searching multiple times
       current_time = Time.now
       books_to_return = book_ids.map do |book_id|
-        books[book_id] = [Book.new(book_id, true), current_time] if book_id.length >= 5 || books[book_id].nil? || (current_time - books[book_id][1]) > 86_400
-          books[book_id][0].to_hash
+        next if book_id.length <= 5
+
+        books[book_id] = [Book.new(book_id, true), current_time] if books[book_id].nil? || (current_time - books[book_id][1]) > 86_400
+        books[book_id][0].to_hash
       end
 
       json books_to_return
