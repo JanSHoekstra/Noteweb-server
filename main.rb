@@ -238,6 +238,16 @@ class MyReadServer < Sinatra::Base
     session[:id] && params[:name] == session[:id] ? json(users.get_collection(params[:name], params[:book_collection])) : halt(401)
   end
 
+  # Recommend books based on user info
+  get '/user/:name/recommend_books' do
+    session[:id] && params[:name] == session[:id] ? json(
+      recommend_personal(
+        users
+        .users[
+      session[:id]
+      ])) : halt(401)
+  end
+
   # Search for books, need to be logged in
   get '/search_book/:search' do
     if session[:id]

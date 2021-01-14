@@ -22,6 +22,17 @@ def recommend(author = '', subject = '')
   uri_to_json('https://openlibrary.org/search.json', query)
 end
 
+def recommend_personal(user)
+  book1 = 'OL11077267W'
+  book2 = 'OL11077267W'
+  book3 = 'OL11077267W'
+
+  # user[1].each do |bookcol|
+  #  bookcol.books[0] # :author :subjects
+
+  [book1, book2, book3]
+end
+
 $search_cache = {}
 def search(search = '', limit = 10)
   # Return cached result if available
