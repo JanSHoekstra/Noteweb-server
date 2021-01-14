@@ -29,10 +29,16 @@ class Book
     value_of(value_of(value_of(goodreads_data, 'books'), 0), 'average_rating').to_f
   end
 
+  $wiki_cache = {}
   def get_wiki(search)
+    search.encode!(Encoding.find('ASCII'), { :invalid => :replace, :undef => :replace, :replace => '', :universal_newline => true }).inspect
+    current_time = Time.now
     return '' if search.nil? || search == ''
-    wiki_data = uri_to_json("https://en.wikipedia.org/w/api.php?action=opensearch&search=#{search.encode(Encoding.find('ASCII'), {:invalid => :replace, :undef => :replace, :replace => '', :universal_newline => true}).inspect}")
-    value_of(value_of(wiki_data, 3), 0)
+    return $wiki_cache[search][0] unless $wiki_cache[search].nil? || (current_time - $wiki_cache[search][1]) > 86_400
+
+    wiki_data = uri_to_json("https://en.wikipedia.org/w/api.php?action=opensearch&search=#{search}")
+    $wiki_cache[search] = [value_of(value_of(wiki_data, 3), 0), current_time]
+    return $wiki_cache[search][0]
   end
 
   def author_data(work_data)
