@@ -257,8 +257,6 @@ class MyReadServer < Sinatra::Base
       # This will be faster when not having a lot of threads and searching multiple times
       current_time = Time.now
       books_to_return = book_ids.map do |book_id|
-        next if book_id.length <= 5
-
         books[book_id] = [Book.new(book_id, true), current_time] if books[book_id].nil? || (current_time - books[book_id][1]) > 86_400
         books[book_id][0].to_hash
       end
@@ -300,6 +298,30 @@ class MyReadServer < Sinatra::Base
     if session[:id]
       books[params[:book]] ||= [Book.new(params[:book]), Time.now] unless params[:book].nil?
       b = books[params[:book]][0]
+      b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
+    else
+      halt 401
+    end
+  end
+
+  # Get book information via id, need to be logged in
+  get '/isbn/:isbn' do
+    halt 400 if params[:isbn].nil?
+    if session[:id]
+      # Use book cache, refresh cache if the current book cache is older than 24 hours (86400s)
+      current_time = Time.now
+      books[params[:isbn]] = [Book.new(params[:isbn], true), current_time] if books[params[:isbn]].nil? || (current_time - books[params[:isbn]][1]) > 86_400
+      json (books[params[:isbn]])[0].to_hash
+    else
+      halt 401
+    end
+  end
+
+  # Get data entry from book, need to be logged in
+  get '/isbn/:isbn/:param' do
+    if session[:id]
+      books[params[:isbn]] ||= [Book.new(params[:isbn], true), Time.now] unless params[:isbn].nil?
+      b = books[params[:isbn]][0]
       b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
     else
       halt 401
