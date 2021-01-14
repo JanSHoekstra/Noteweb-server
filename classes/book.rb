@@ -31,7 +31,7 @@ class Book
 
   $wiki_cache = {}
   def get_wiki(search)
-    search.encode!(Encoding.find('ASCII'), { :invalid => :replace, :undef => :replace, :replace => '', :universal_newline => true }).inspect
+    search.encode!(Encoding.find('ASCII'), { :invalid => :replace, :undef => :replace, :replace => '', :universal_newline => true }).inspect.downcase!
     current_time = Time.now
     return '' if search.nil? || search == ''
     return $wiki_cache[search][0] unless $wiki_cache[search].nil? || (current_time - $wiki_cache[search][1]) > 86_400
