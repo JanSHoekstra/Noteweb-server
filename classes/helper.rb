@@ -37,7 +37,7 @@ $search_cache = {}
 def search(search = '', limit = 10)
   # Return cached result if available
   current_time = Time.now
-  search.lowercase!
+  search.downcase!
   return $search_cache[search][0] unless $search_cache[search].nil? || (current_time - $search_cache[search][1]) > 86_400
 
   # Else query this search query on openlibrary
