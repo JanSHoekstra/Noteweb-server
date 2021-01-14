@@ -314,6 +314,30 @@ class MyReadServer < Sinatra::Base
     end
   end
 
+  # Get book information via id, need to be logged in
+  get '/isbn/:isbn' do
+    halt 400 if params[:isbn].nil?
+    if session[:id]
+      # Use book cache, refresh cache if the current book cache is older than 24 hours (86400s)
+      current_time = Time.now
+      books[params[:isbn]] = [Book.new(params[:isbn], true), current_time] if books[params[:isbn]].nil? || (current_time - books[params[:isbn]][1]) > 86_400
+      json (books[params[:isbn]])[0].to_hash
+    else
+      halt 401
+    end
+  end
+
+  # Get data entry from book, need to be logged in
+  get '/isbn/:isbn/:param' do
+    if session[:id]
+      books[params[:isbn]] ||= [Book.new(params[:isbn], true), Time.now] unless params[:isbn].nil?
+      b = books[params[:isbn]][0]
+      b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
+    else
+      halt 401
+    end
+  end
+
   # ##############
   # Error Handling
   # ##############
