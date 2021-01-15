@@ -88,23 +88,23 @@ class UnitTest < Test::Unit::TestCase
   # Test to validate if there's book data being returned from the OpenLibrary DB.
   def test_validate_book_data
     b = Book.new('OL26412312M')
-    assert_equal(true, b.title == 'The bazaar of bad dreams')
-    assert_equal(true, b.author == 'Stephen King')
+    assert_equal(b.title, 'The bazaar of bad dreams')
+    assert_equal(b.author, 'Stephen King')
     assert_equal(true, b.cover?)
 
     b = Book.new('OL145191W')
-    assert_equal(true, b.title == 'Picasso')
+    assert_equal(b.title, 'Picasso')
     assert_equal(true, b.subjects.include?('Amsterdam (Netherlands)'))
-    assert_equal(true, b.cover_img_small == 'https://covers.openlibrary.org/b/id/2238306-S.jpg')
+    assert_equal(b.cover_img_small, 'https://covers.openlibrary.org/b/id/2238306-S.jpg')
 
     b = Book.new('OL8141930M')
-    assert_equal(true, b.isbn.to_s == '0786806931')
+    assert_equal(b.isbn.to_s, '0786806931')
     assert_equal(true, b.rating > 3.5 && b.rating < 5) if set_goodreads_key
-    assert_equal(true, b.cover_id == 544_129)
-    assert_equal(true, b.publish_date == 'May 1, 2004')
+    assert_equal(b.cover_id, 544_129)
+    assert_equal(b.publish_date, 'May 1, 2004')
 
     b = Book.new('OL24229110M')
-    assert_equal(true, b.amazon_link == 'https://www.amazon.com/dp/0451149513')
+    assert_equal(b.amazon_link, 'https://www.amazon.com/dp/0451149513')
   end
 
   def test_recommend_without_collections
@@ -113,6 +113,6 @@ class UnitTest < Test::Unit::TestCase
     assert_equal(true, u.add('testuser', 'Testp4ssword123!'))
     assert_equal(%w[OL27549948M OL30222340M OL26418460M], u.recommend_personal('testuser'))
     assert_equal(true, u.add_collection('testuser', 'My favorite books'))
-    assert_equal(true, u.recommend_personal('testuser') == %w[OL27549948M OL30222340M OL26418460M])
+    assert_equal(u.recommend_personal('testuser'), %w[OL27549948M OL30222340M OL26418460M])
   end
 end
