@@ -11,7 +11,6 @@ require 'rack/protection'
 require 'rack/session/encrypted_cookie'
 require 'securerandom'
 require 'slop'
-require 'parallel'
 
 require_relative 'classes/users'
 require_relative 'classes/book'
