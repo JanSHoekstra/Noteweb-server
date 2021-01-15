@@ -106,4 +106,13 @@ class UnitTest < Test::Unit::TestCase
     b = Book.new('OL24229110M')
     assert_equal(true, b.amazon_link == 'https://www.amazon.com/dp/0451149513')
   end
+
+  def test_recommend_without_collections
+    u = Users.new
+    $books = {}
+    assert_equal(true, u.add('testuser', 'Testp4ssword123!'))
+    assert_equal(%w[OL27549948M OL30222340M OL26418460M], u.recommend_personal('testuser'))
+    assert_equal(true, u.add_collection('testuser', 'My favorite books'))
+    assert_equal(true, u.recommend_personal('testuser') == %w[OL27549948M OL30222340M OL26418460M])
+  end
 end

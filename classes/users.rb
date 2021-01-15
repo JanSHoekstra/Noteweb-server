@@ -153,6 +153,18 @@ class Users
 
     current_time = Time.now
     random_collection = @users[name][1].sample
+
+    # If the random collection is empty, go through the users collections until one is found that isn't empty
+    if random_collection.empty?
+      @users[name][1].each do |collection|
+        unless collection.empty?
+          random_collection = collection
+          break
+        end
+      end
+    end
+
+    # If the random collection is still empty (apparently there is no collection with books) they will be recommended 
     random_book = random_collection['books'].sample
     $books[random_book] = [Book.new(random_book), current_time] if $books[random_book].nil? || (current_time - $books[random_book][1]) > 86_400
     book = $books[random_book][0]
@@ -167,7 +179,7 @@ class Users
       log "Recommending books to #{name} based on book author #{book.author} that wrote #{random_book} found in collection #{random_collection} because specified book did not have subjects"
       recommend(book.author, '')
     else
-      log "Recommending default books to #{name} because their book did not have an author or any subject"
+      log "Recommending default books to #{name} because their selected book did not have an author or any subject or their book collections were empty"
       return %w[OL27549948M OL30222340M OL26418460M]
     end
   end
