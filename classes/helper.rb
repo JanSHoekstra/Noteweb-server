@@ -23,9 +23,9 @@ def recommend(author = '', subject = '')
 end
 
 def recommend_personal(user)
-  book1 = 'OL11077267W'
-  book2 = 'OL11077267W'
-  book3 = 'OL11077267W'
+  book1 = 'OL30222340M'
+  book2 = 'OL31781508M'
+  book3 = 'OL27408290M'
 
   # user[1].each do |bookcol|
   #  bookcol.books[0] # :author :subjects
