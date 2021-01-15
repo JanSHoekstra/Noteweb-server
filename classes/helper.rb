@@ -14,27 +14,27 @@ rescue JSON::ParserError => e
   false
 end
 
-def recommend(author = '', subject = '')
-  query = {
-    'author': author,
-    'subject': subject
-  }
-  uri_to_json('https://openlibrary.org/search.json', query)
+def get_key_for_result(recommend_data, result_num)
+  return value_of(value_of(value_of(recommend_data, 'docs'), result_num), 'key').delete('/works/')
 end
 
-def recommend_personal(user)
-  book1 = 'OL30222340M'
-  book2 = 'OL31781508M'
-  book3 = 'OL27408290M'
+# Returns the Openlibrary IDs searched for
+def recommend(author = '', subject = '', limit = 3)
+  query = {'limit': 3}
+  query['author'] = author if author != ''
+  query['subject'] = subject if subject != ''
 
-  # user[1].each do |bookcol|
-  #  bookcol.books[0] # :author :subjects
-
-  [book1, book2, book3]
+  recommend_data = uri_to_json('https://openlibrary.org/search.json', query)
+  books_to_return = Array.new(limit)
+  limit.times do |num|
+    books_to_return[num] = get_key_for_result(recommend_data, num)
+  end
+  return books_to_return
 end
 
 $search_cache = {}
 def search(search = '', limit = 10)
+  return false if search.nil? || search == ''
   # Return cached result if available
   current_time = Time.now
   search.downcase!
