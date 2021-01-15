@@ -131,7 +131,7 @@ class Book
       @amazon_id = value_of(value_of(book_data, 'identifiers'), 'amazon').to_s.delete '["]'
       @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{@amazon_id}"
     end
-    @description = value_of(book_data, 'description')
+      @description = value_of(value_of(book_data, 'description'), 'value') if value_of(value_of(book_data, 'description'), 'type') == '/type/text'
   end
 
   def populate_author_data(work_data)
