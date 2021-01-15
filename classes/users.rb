@@ -51,6 +51,11 @@ class Users
     name.match?(/^([a-z\d]+-)*[a-z\d]+$/i) && pass.match?(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{9,64}$/) && !pass.include?(name)
   end
 
+  # Collection may only contain alphanumeric characters and spaces
+  def collection_meets_requirements?(collection_name)
+    collection_name.match?(/^[a-zA-Z0-9 ]*$/)
+  end
+
   # Adds a user with name and pass (is encrypted) to the DB
   def add(name, pass)
     return false if exists?(name) || !meets_requirements?(name, pass)
@@ -80,6 +85,8 @@ class Users
   end
 
   def add_collection(name, collection_name, books = [])
+    return false unless collection_meets_requirements?(collection_name)
+
     @users[name][1].each do |bc|
       return false if bc['name'] == collection_name
     end
@@ -99,6 +106,8 @@ class Users
   end
 
   def chname_collection(name, collection_name, new_collection_name)
+    return false unless collection_meets_requirements?(new_collection_name)
+
     @users[name][1].each do |bc|
       next if collection_name != bc['name']
 
