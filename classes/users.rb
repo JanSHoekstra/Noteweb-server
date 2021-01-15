@@ -26,7 +26,7 @@ class Users
     return unless @changed_since_last_write
 
     File.write(@users_path, JSON.pretty_generate(@users))
-    puts "Time: #{Time.now} - Writing $users to file."
+    log 'Writing $users to file.'
     @changed_since_last_write = false
   end
 
@@ -146,28 +146,28 @@ class Users
   end
 
   def recommend_personal(name)
-    return %w[OL27549948M OL30222340M OL26418460M] if @users[name][1].empty?
+    if @users[name][1].empty?
+      log "Recommending default books to #{name} because they did not have any collection"
+      return %w[OL27549948M OL30222340M OL26418460M]
+    end
 
     current_time = Time.now
     random_collection = @users[name][1].sample
-    log "Picked random collection: #{random_collection}"
     random_book = random_collection['books'].sample
-    log "Picked random book from random collection: #{random_book}"
     $books[random_book] = [Book.new(random_book), current_time] if $books[random_book].nil? || (current_time - $books[random_book][1]) > 86_400
     book = $books[random_book][0]
     if rand >= 0.5 && book.author != '' && !book.author.nil?
-      log "Picking author from book: #{book.author}"
+      log "Recommending books to #{name} based on book author #{book.author} that wrote #{random_book} found in collection #{random_collection}"
       recommend(book.author, '')
     elsif !book.subjects.empty?
       random_subject = book.subjects.sample
-      log "Picking random subject from book! #{random_subject}"
+      log "Recommending books to #{name} based on subject #{random_subject} originating from book #{random_book} found in collection #{random_collection}"
       recommend('', random_subject)
-    # Fallback to author lookup if there were no subjects
     elsif book.author != '' && !book.author.nil?
-      log "Picking author from book: #{book.author}"
+      log "Recommending books to #{name} based on book author #{book.author} that wrote #{random_book} found in collection #{random_collection} because specified book did not have subjects"
       recommend(book.author, '')
     else
-      # No authors or subjects were able to be found on this book, return default values
+      log "Recommending default books to #{name} because their book did not have an author or any subject"
       return %w[OL27549948M OL30222340M OL26418460M]
     end
   end

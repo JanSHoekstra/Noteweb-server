@@ -10,7 +10,8 @@ end
 def uri_to_json(uri, query = nil)
   query.nil? ? JSON.parse(Typhoeus::Request.new(uri.to_s, followlocation: true, ssl_verifypeer: false).run.body) : JSON.parse(Typhoeus::Request.new(uri.to_s, params: query, followlocation: true, ssl_verifypeer: false).run.body)
 rescue JSON::ParserError => e
-  log('JSON ParserError!')
+  log("Could not parse JSON with uri #{uri.to_s} and query #{query} - for more information see exception below.")
+  log(e)
   false
 end
 

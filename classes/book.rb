@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'uri'
+
 require_relative 'helper'
 
 # Book object containing information about books
@@ -31,21 +33,27 @@ class Book
 
   $wiki_cache = {}
   def get_wiki(search)
-    search = search.encode(Encoding.find('ASCII'), { :invalid => :replace, :undef => :replace, :replace => '', :universal_newline => true }).inspect.downcase
-    current_time = Time.now
     return '' if search.nil? || search == ''
+
+    search = search.encode(Encoding.find('ASCII'), invalid: :replace, undef: :replace, replace: '', universal_newline: true).downcase
+
+    current_time = Time.now
     return $wiki_cache[search][0] unless $wiki_cache[search].nil? || (current_time - $wiki_cache[search][1]) > 86_400
 
-    wiki_data = uri_to_json("https://en.wikipedia.org/w/api.php?action=opensearch&search=#{search}")
+    query = { 'action': 'opensearch', 'search': search }
+    wiki_data = uri_to_json('https://en.wikipedia.org/w/api.php', query)
     $wiki_cache[search] = [value_of(value_of(wiki_data, 3), 0), current_time]
     return $wiki_cache[search][0]
   end
 
   def author_data(work_data)
     authors = value_of(work_data, 'authors')
-    if authors && authors[0] && (authors[0]['key'] || authors[0]['author']['key'])
-      author_data = uri_to_json("https://openlibrary.org/#{authors[0]['key']}.json")
-      author_data ||= uri_to_json("https://openlibrary.org/#{authors[0]['author']['key']}.json")
+    if authors && authors[0]
+      if !authors[0]['key'].nil? && authors[0]['key'] != ''
+        uri_to_json("https://openlibrary.org/#{authors[0]['key']}.json")
+      elsif !authors[0]['author'].nil? && authors[0]['author'] != ''
+        uri_to_json("https://openlibrary.org/#{authors[0]['author']['key']}.json")
+      end
     else ''
     end
   end
@@ -70,7 +78,7 @@ class Book
 
     # Checking for lower than 0 because OpenLibrary seems to use -1 sometimes for books with no covers? Weird API quirk. Example: /works/OL20759146W
     if @cover_id != '' && !@cover_id.negative?
-      cover_request = Typhoeus::Request.new("https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg?default=false", followlocation: true, ssl_verifypeer: false)
+      cover_request = Typhoeus::Request.new("https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg", params: { 'default': false }, followlocation: true, ssl_verifypeer: false)
       cover_request.on_headers do |response|
         if response.success?
           @cover_img_small = "https://covers.openlibrary.org/b/id/#{@cover_id}-S.jpg"
