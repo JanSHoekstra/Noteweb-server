@@ -67,6 +67,7 @@ class Book
     end
     @title = value_of(work_data, 'title')
     @subjects = value_of(work_data, 'subjects') if @subjects.nil? || @subjects == ''
+    @description = value_of(work_data, 'description') if @description.nil? || @description == ''
     @description = value_of(value_of(work_data, 'description'), 'value') if @description.nil? || @description == ''
     @publish_date = value_of(work_data, 'publish_date') if @publish_date.nil? || @publish_date == ''
     if @amazon_id.nil? || @amazon_id == ''
@@ -118,7 +119,8 @@ class Book
       @amazon_id = value_of(value_of(book_data, 'identifiers'), 'amazon').to_s.delete '["]'
       @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{@amazon_id}"
     end
-    @description = value_of(book_data, 'description')
+    @description = value_of(value_of(book_data, 'description'), 'value') if @description == '' || @description.nil?
+    @description = value_of(book_data, 'description') if @description == '' || @description.nil?
   end
 
   def populate_book_data_isbn(isbn)
@@ -139,7 +141,8 @@ class Book
       @amazon_id = value_of(value_of(book_data, 'identifiers'), 'amazon').to_s.delete '["]'
       @amazon_link = @amazon_id == '' ? '' : "https://www.amazon.com/dp/#{@amazon_id}"
     end
-      @description = value_of(value_of(book_data, 'description'), 'value') if value_of(value_of(book_data, 'description'), 'type') == '/type/text'
+    @description = value_of(value_of(book_data, 'description'), 'value') if @description == '' || @description.nil?
+    @description = value_of(book_data, 'description') if @description == '' || @description.nil?
   end
 
   def populate_author_data(work_data)
