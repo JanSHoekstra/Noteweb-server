@@ -41,7 +41,6 @@ end
 
 # The server
 class MyReadServer < Sinatra::Base
-
   # Accept command-line arguments for easy configuration
   @arguments = Slop.parse do |o|
     o.on '-h', '--help' do
