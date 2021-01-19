@@ -15,8 +15,11 @@ For portability or performance reasons you may want to run a compiled version of
 
 ## Accepted arguments
 `usage: ./main.rb [options]
+
     -h, --help
+    
     -l, --limit       (optional) specify the maximum hourly amount of POST requests allowed per user
+    
     -p, --production  run the server in production mode`
 
 ## Running the unit tests
