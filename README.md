@@ -14,13 +14,12 @@ Run `ruby main.rb` in the repository directory. Access it on `127.0.0.1:2048`.
 For portability or performance reasons you may want to run a compiled version of the server - to do this run `ruby compiler/compiler.rb main.rb` in the root repository directory. Afterwards `main.bin` will appear and you'll be able to run the compiled code with `ruby compiler/run.rb main.bin`.
 
 ## Accepted arguments
-`usage: ./main.rb [options]
-
-    -h, --help
+- usage: ./main.rb [options]
+`-h, --help
     
-    -l, --limit       (optional) specify the maximum hourly amount of POST requests allowed per user
+-l, --limit       (optional) specify the maximum hourly amount of POST requests allowed per user
     
-    -p, --production  run the server in production mode`
+-p, --production  run the server in production mode`
 
 ## Running the unit tests
 Run `ruby run_tests.rb` in the repository directory.
