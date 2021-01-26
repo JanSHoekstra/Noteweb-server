@@ -10,9 +10,9 @@ require_relative 'helper'
 # User class
 class Users
   def initialize
-    @users_path = 'db/users.json'
+    @users_path = "#{__dir__}/db/users.json"
     # Create empty json in tmp directory if those do not exist yet
-    Dir.mkdir('db') unless Dir.exist?('db')
+    Dir.mkdir("#{__dir__}/db") unless Dir.exist?("#{__dir__}/db")
     File.open(@users_path, 'w') { |f| f.write('{}') } unless File.exist?(@users_path)
     @users = JSON.parse(File.open(@users_path).read)
     # For Windows, because Windows doesn't include timezones for whatever reason.
