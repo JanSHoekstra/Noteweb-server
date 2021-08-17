@@ -11,13 +11,12 @@ require 'rack/protection'
 require 'rack/session/encrypted_cookie'
 require 'securerandom'
 require 'slop'
+require 'moneta'
 
 require_relative 'classes/users'
-require_relative 'classes/book'
 require_relative 'classes/helper'
 
-
-if File.exists?('/etc/letsencrypt/live/socialread.tk/fullchain.pem')
+if File.exist?('/etc/letsencrypt/live/socialread.tk/fullchain.pem')
   webrick_options = {
     Host: '0.0.0.0',
     Port: 2048,
@@ -93,13 +92,8 @@ class MyReadServer < Sinatra::Base
   set :sessions, expire_after: 1800
   set force_ssl: true
 
-  # Create a new database in memory for the users, sync them to file every three seconds
+  # Create a database object
   users = Users.new
-  users.write_every('3s')
-
-  # Books cache - store books in RAM when they have already been fetched.
-  # Cache for a book is refreshed if it is requested 24 hours after creation of the cache for the specified book
-  $books = {}
 
   # #############
   # API Endpoints
@@ -137,20 +131,16 @@ class MyReadServer < Sinatra::Base
   end
 
   # Change password for user, need to be logged in as specified user
-  post '/user/:name/change_password' do
+  post '/user/change_password' do
     if !params[:name].nil? && !params[:old_pass].nil? && !params[:new_pass].nil?
-      if params[:name] == session[:id]
-        users.chpass(params[:name], params[:old_pass], params[:new_pass]) ? status(200) : halt(401)
-      else
-        halt 401
-      end
+      users.chpass(params[:name], params[:old_pass], params[:new_pass]) ? status(200) : halt(401)
     else
       halt 400
     end
   end
 
   # Delete users account, need to be logged in as specified user
-  post '/user/:name/delete' do
+  post '/user/delete' do
     if !params[:name].nil? && !params[:pass].nil?
       if params[:name] == session[:id]
         if users.del(params[:name], params[:pass])
@@ -168,7 +158,7 @@ class MyReadServer < Sinatra::Base
   end
 
   # Get book collections from user, need to be logged in as specified user
-  get '/user/:name/book_collections' do
+  get '/user/book_collections' do
     if users.exists?(params[:name]) && params[:name] == session[:id]
       json users.users[params[:name]][1]
     else
@@ -176,159 +166,19 @@ class MyReadServer < Sinatra::Base
     end
   end
 
-  # Add book to book collection, need to be logged in as specified user
-  get '/user/:name/add_book_to_collection/:collection_name/:book_id' do
-    if users.exists?(params[:name]) && params[:name] == session[:id]
-      users.add_book_to_collection(params[:name], params[:collection_name], params[:book_id])
-    else
-      halt 401
-    end
+  # Create note
+  post '/note' do
+
   end
 
-  # Delete book from book collection, need to be logged in as specified user
-  get '/user/:name/del_book_from_collection/:collection_name/:book_id' do
-    if users.exists?(params[:name]) && params[:name] == session[:id]
-      users.add_book_to_collection(params[:name], params[:collection_name], params[:book_id])
-    else
-      halt 401
-    end
+  # Get note with nid from personal notes
+  get '/note/:nid' do
+
   end
 
-  # Create new book collection, need to be logged in as specified user
-  get '/user/:name/add_book_collection/:collection_name' do
-    if users.exists?(params[:name]) && params[:name] == session[:id]
-      users.add_collection(params[:name], params[:collection_name]) ? status(201) : halt(400)
-    else
-      halt 401
-    end
-  end
+  # Delete note with id <nid>
+  delete '/note/:nid' do
 
-  # Create new book collection with books (separated by ;), need to be logged in as specified user
-  get '/user/:name/add_book_collection/:collection_name/:book_ids' do
-    if users.exists?(params[:name]) && params[:name] == session[:id]
-      book_ids = params[:book_ids].to_s.split(';') unless params[:book_ids].nil?
-      users.add_collection(params[:name], params[:collection_name], book_ids) ? status(201) : halt(400)
-    else
-      halt 401
-    end
-  end
-
-  # Delete book collection, need to be logged in as specified user
-  get '/user/:name/del_book_collection/:collection_name' do
-    if users.exists?(params[:name]) && params[:name] == session[:id]
-      users.del_collection(params[:name], params[:collection_name]) ? status(200) : halt(400)
-    else
-      halt 401
-    end
-  end
-
-  # Rename book collection, need to be logged in as specified user
-  get '/user/:name/chname_book_collection/:collection_name/:new_collection_name' do
-    if users.exists?(params[:name]) && params[:name] == session[:id]
-      users.chname_collection(params[:name], params[:collection_name], params[:new_collection_name]) ? status(200) : halt(400)
-    else
-      halt 401
-    end
-  end
-
-  # Get book collection by name from user, need to be logged in as specified user
-  get '/user/:name/book_collections/:book_collection' do
-    session[:id] && params[:name] == session[:id] ? json(users.get_collection(params[:name], params[:book_collection])) : halt(401)
-  end
-
-  # Recommend books based on user info
-  get '/user/:name/recommend_books' do
-    session[:id] && params[:name] == session[:id] ? json(users.recommend_personal(session[:id])) : halt(401)
-  end
-
-  # Search for books, need to be logged in
-  get '/search_book/:search' do
-    if session[:id]
-      book_ids = search(params[:search])
-
-      halt 400 if !book_ids || book_ids.nil? || book_ids == ''
-
-      # Launch a thread per Book ID to retrieve details about this book
-      # Results in much faster execution if there are a lot of threads available on the CPU
-      # Disabled because it's slower on the Azure system (4 threads)
-      # Kept in the code base because it's faster on systems with > 10 threads
-      # books_to_return = Parallel.map(book_ids) do |book_id|
-      #   Book.new(book_id, true).to_hash
-      # end
-
-      # Cache book results instead of using multithreading to search for each book
-      # This will be faster when not having a lot of threads and searching multiple times
-      current_time = Time.now
-      books_to_return = book_ids.map do |book_id|
-        $books[book_id] = [Book.new(book_id, true), current_time] if $books[book_id].nil? || (current_time - $books[book_id][1]) > 86_400
-        $books[book_id][0].to_hash
-      end
-
-      json books_to_return
-    else
-      halt 401
-    end
-  end
-
-  # Recommend a book based on author and subject(s - can be an array), need to be logged in
-  get '/recommend_book_via_author/:author' do
-    session[:id] ? json(recommend(params[:author])) : halt(401)
-  end
-
-  get '/recommend_book_via_subject/:subject' do
-    session[:id] ? json(recommend('', params[:subject])) : halt(401)
-  end
-
-  get '/recommend_book_via_author_subject/:author/:subject' do
-    session[:id] ? json(recommend(params[:author], params[:subject])) : halt(401)
-  end
-
-  # Get book information via id, need to be logged in
-  get '/book/:book' do
-    halt 400 if params[:book].nil?
-    if session[:id]
-      # Use book cache, refresh cache if the current book cache is older than 24 hours (86400s)
-      current_time = Time.now
-      $books[params[:book]] = [Book.new(params[:book]), current_time] if $books[params[:book]].nil? || (current_time - $books[params[:book]][1]) > 86_400
-      json ($books[params[:book]])[0].to_hash
-    else
-      halt 401
-    end
-  end
-
-  # Get data entry from book, need to be logged in
-  get '/book/:book/:param' do
-    if session[:id]
-      $books[params[:book]] ||= [Book.new(params[:book]), Time.now] unless params[:book].nil?
-      b = $books[params[:book]][0]
-      b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
-    else
-      halt 401
-    end
-  end
-
-  # Get book information via id, need to be logged in
-  get '/isbn/:isbn' do
-    halt 400 if params[:isbn].nil?
-    if session[:id]
-      # Use book cache, refresh cache if the current book cache is older than 24 hours (86400s)
-      current_time = Time.now
-      $books[params[:isbn]] = [Book.new(params[:isbn], true), current_time] if $books[params[:isbn]].nil? || (current_time - $books[params[:isbn]][1]) > 86_400
-      json ($books[params[:isbn]])[0].to_hash
-    else
-      halt 401
-    end
-  end
-
-  # Get data entry from book, need to be logged in
-  get '/isbn/:isbn/:param' do
-    if session[:id]
-      $books[params[:isbn]] ||= [Book.new(params[:isbn], true), Time.now] unless params[:isbn].nil?
-      b = $books[params[:isbn]][0]
-      b.instance_variable_get(params[:param]) if b.instance_variable_defined?(params[:param])
-    else
-      halt 401
-    end
   end
 
   # ##############
