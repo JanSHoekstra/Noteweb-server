@@ -15,6 +15,8 @@ require 'moneta'
 
 require_relative 'classes/users'
 require_relative 'classes/helper'
+require_relative 'classes/notes'
+require_relative 'classes/note'
 
 if File.exist?('/etc/letsencrypt/live/socialread.tk/fullchain.pem')
   webrick_options = {
@@ -94,6 +96,7 @@ class MyReadServer < Sinatra::Base
 
   # Create a database object
   users = Users.new
+  notes = Notes.new
 
   # #############
   # API Endpoints
@@ -157,23 +160,24 @@ class MyReadServer < Sinatra::Base
     end
   end
 
-  # Get book collections from user, need to be logged in as specified user
-  get '/user/book_collections' do
-    if users.exists?(params[:name]) && params[:name] == session[:id]
-      json users.users[params[:name]][1]
-    else
-      halt 401
-    end
-  end
-
   # Create note
   post '/note' do
+    x = Note.new(params[:title], params[:description])
+    notes.add_note(x)
+  end
 
+  # Return all notes
+  get '/note' do
+    json notes.get_all_notes.load(key)
   end
 
   # Get note with nid from personal notes
   get '/note/:nid' do
-
+    #json notes.get_note(params[:nid])
+    #notes.get_note(0).to_json
+    notes.get_note(params[:nid].to_i).to_json
+    #json Hash.new
+    #json notes.exist?(0)
   end
 
   # Delete note with id <nid>
